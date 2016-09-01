@@ -2,8 +2,7 @@
 
 ### Description
 
-'''''code
-
+```Javascript
                                                 |-----------|
                                                 | Webserver |
                                                 | dashboard |
@@ -17,8 +16,8 @@
 |  Client   |<=========Ethernet/Wireless=======>|  Server   |<======>|  SQLlite  |
 | Websocket |                                   | Websocket |        |-----------|
 |-----------|                                   |-----------|
+```
 
-'''''
 
 ### ROADMAP
 
