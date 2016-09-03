@@ -13,9 +13,8 @@ Library : https://github.com/djsb/arduino-websocketclient
 #include <SPI.h>
 #include <Ethernet.h>
 #include "WSClient.h"
-
-//#include <OneWire.h>
-//#include <DallasTemperature.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 // Debug
 #define DEBUG  1
@@ -25,23 +24,26 @@ Library : https://github.com/djsb/arduino-websocketclient
 #define SENSORB 3
 
 //Définition des capteurs
-//OneWire TMP_CUMULUS(SENSORA);
-//OneWire TMP_OUT(SENSORB);
+OneWire TMP_CUMULUS(SENSORA);
+OneWire TMP_OUT(SENSORB);
 
-//DallasTemperature sensor_cumulus(&TMP_CUMULUS);
-//DallasTemperature sensor_out(&TMP_OUT);
+DallasTemperature sensor_cumulus(&TMP_CUMULUS);
+DallasTemperature sensor_out(&TMP_OUT);
 
-#define HOSTNAME   "192.168.1.1"    // Serveur distant
-#define PORT        8000            // Port du serveur distant
+//#define HOSTNAME   "192.168.100.9"      // Serveur distant
+//#define PORT        8000                // Port du serveur distant
+#define HOSTNAME     "echo.websocket.org" // Serveur distant
+#define PORT         80                   // Port du serveur distant
+#define PATH         "/"                  // Path
 
 // Ethernet Configuration
-EthernetClient client;
-
 byte mac[] = {0x52, 0x4F, 0x43, 0x4B, 0x45, 0x54};
-byte ip[] = {192, 168, 1 , 150};
+IPAddress ip(192, 168, 100 , 150);
 IPAddress subnet(255, 255, 255, 0);
-//IPAddress myDns(192,168,100, 245);
-//IPAddress gateway(192, 168, 100, 254);
+IPAddress myDNS(192, 168, 100, 245);
+IPAddress gateway(192, 168, 100, 254);
+
+EthernetClient client;
 
 // Websocket initialization
 WSClient websocket;
@@ -53,23 +55,26 @@ void setup() {
   #endif
 
   //Init Ethernet
-  Ethernet.begin(mac, ip, subnet);
-  #ifdef DEBUG  
+  Ethernet.begin(mac, ip, subnet, myDNS, gateway);
+  #ifdef DEBUG
+    Serial.print("IP : ");
     Serial.println(Ethernet.localIP());
-    Serial.println(F("Start"));
+    Serial.println("Starting...");
   #endif
 
   delay(1000);
 
   //Init Sonde
-//  sensor_cumulus.begin();
-//  sensor_out.begin();
+  sensor_cumulus.begin();
+  sensor_out.begin();
 
   // Connect and test websocket server connectivity
-  //if (client.connect(HOSTNAME, PORT)) {
-  if (client.connect("echo.websocket.org", 80)) {
+  if (client.connect(HOSTNAME, PORT)) {
     #ifdef DEBUG  
-      Serial.println("Connected");
+      Serial.print("Connected to ");
+      Serial.print(HOSTNAME);
+      Serial.print(":");
+      Serial.println(PORT);
     #endif
   } else {
     #ifdef DEBUG  
@@ -81,10 +86,8 @@ void setup() {
   }
 
   // Define path and host for Handshaking with the server
-  websocket.path = "/";
-  //websocket.host = HOSTNAME;
-  websocket.host = "echo.websocket.org";
-
+  websocket.path = PATH;
+  websocket.host = HOSTNAME;
 
   if (websocket.handshake(client)) {
     #ifdef DEBUG  

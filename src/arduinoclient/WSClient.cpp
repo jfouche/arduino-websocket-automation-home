@@ -32,7 +32,8 @@ bool WSClient::handshake(Client &client) {
 
 
     socket_client = &client;
-
+    Serial.println(F("Hanshaking..."));  //Debug
+    Serial.println(client);  //Debug
     // If there is a connected client->
     if (socket_client->connected()) {
         // Check request and look for websocket handshake
@@ -129,7 +130,7 @@ bool WSClient::analyzeRequest() {
     socket_client->print(CRLF);
 
     // DEBUG ONLY - inspect the handshaking process
-    /*
+    
     Serial.print(F("GET "));
     Serial.print(path);
     Serial.print(F(" HTTP/1.1\r\n"));
@@ -143,7 +144,7 @@ bool WSClient::analyzeRequest() {
     Serial.print(CRLF);
     Serial.print(F("Sec-WebSocket-Version: 13\r\n"));
     Serial.print(CRLF);
-    */
+    
 
 
     while (socket_client->connected() && !socket_client->available()) {
