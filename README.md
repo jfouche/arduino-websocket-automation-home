@@ -3,7 +3,8 @@
 ### Description
 L'objectif de ce github est de creer une application opensource de domotique très simple. Elle regroupe des fonctionnalités:
 - Dashboard bootstrap: Permettra d'afficher les données avec une interface responsive design.
-- Un serveur: Ecrit en python, ce serveur récupère les données provenant d'un client et les inserts dans une base de donnée- Une base de donnée: Stock les données
+- Un serveur: Ecrit en python, ce serveur récupère les données provenant d'un client et les inserts dans une base de donnée.
+- Une base de donnée: Stock les données des capteurs répartie sur les cartes arduinos.
 - Un client collectant les données et les envoyants au serveur.
 
 ```Javascript
