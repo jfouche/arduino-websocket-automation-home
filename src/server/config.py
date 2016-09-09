@@ -1,3 +1,3 @@
 # Socket configuration
-socketport = 8000
-sockethost = "0.0.0.0"
+socketport = 8050
+sockethost = '0.0.0.0'
