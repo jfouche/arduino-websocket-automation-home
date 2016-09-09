@@ -33,10 +33,10 @@ L'objectif de ce github est de creer une application opensource de domotique tr�
 	- Inscription des valeurs dans la base de données
 	- fichier de configuration du serveur (config.py)
 
-Base de donnée:
+- Base de donnée:
 	- Créer/trouver une organisation de la base de données
 
-IHM/Dashboard:
+- IHM/Dashboard:
 	- Organiser le dashboard
 	- Exploiter la remonter des données de la base de données
 	- Intégrer des graphiques style http://www.highcharts.com/demo/dynamic-update
