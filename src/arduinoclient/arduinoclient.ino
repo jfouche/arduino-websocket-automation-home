@@ -16,6 +16,9 @@ Library : https://github.com/djsb/arduino-websocketclient
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
+// Define a maximum framelength to 64 bytes. Default is 256. Don't Work !!! 
+#define MAX_FRAME_LENGTH 256
+
 // Debug
 #define DEBUG  1
 
@@ -30,18 +33,18 @@ OneWire TMP_OUT(SENSORB);
 DallasTemperature sensor_cumulus(&TMP_CUMULUS);
 DallasTemperature sensor_out(&TMP_OUT);
 
-//#define HOSTNAME   "192.168.100.9"      // Serveur distant
-//#define PORT        8000                // Port du serveur distant
-#define HOSTNAME     "echo.websocket.org" // Serveur distant
-#define PORT         80                   // Port du serveur distant
-#define PATH         "/"                  // Path
+#define HOSTNAME   "192.168.1.1"            // Serveur distant
+#define PORT        8000                    // Port du serveur distant
+//#define HOSTNAME     "echo.websocket.org" // Serveur distant
+//#define PORT         80                   // Port du serveur distant
+#define PATH         "/"                    // Path
 
 // Ethernet Configuration
 byte mac[] = {0x52, 0x4F, 0x43, 0x4B, 0x45, 0x54};
-IPAddress ip(192, 168, 100 , 150);
+IPAddress ip(192, 168, 1 , 150);
 IPAddress subnet(255, 255, 255, 0);
-IPAddress myDNS(192, 168, 100, 245);
-IPAddress gateway(192, 168, 100, 254);
+//IPAddress myDNS(192, 168, 100, 245);
+//IPAddress gateway(192, 168, 100, 254);
 
 EthernetClient client;
 
@@ -55,7 +58,8 @@ void setup() {
   #endif
 
   //Init Ethernet
-  Ethernet.begin(mac, ip, subnet, myDNS, gateway);
+  Ethernet.begin(mac, ip, subnet);
+  //Ethernet.begin(mac, ip, subnet, myDNS, gateway);
   #ifdef DEBUG
     Serial.print("IP : ");
     Serial.println(Ethernet.localIP());
@@ -102,7 +106,6 @@ void setup() {
       // Hang on failure
     }
   }
-
 }
 
 

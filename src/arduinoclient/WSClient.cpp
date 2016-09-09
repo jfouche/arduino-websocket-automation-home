@@ -27,6 +27,11 @@
 #include <Ethernet.h>
 #include "WSClient.h"
 
+// Don't allow the client to send big frames of data. This will flood the Arduinos
+// memory and might even crash it.
+#ifndef MAX_FRAME_LENGTH
+  #define MAX_FRAME_LENGTH 256
+#endif
 
 bool WSClient::handshake(Client &client) {
 
