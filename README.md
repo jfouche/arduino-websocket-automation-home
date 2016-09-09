@@ -26,8 +26,7 @@ L'objectif de ce github est de creer une application opensource de domotique tr�
 
 - Client:
 	- Ecriture du client (C/C++): Regroupe essentiellement des capteurs: Température, Pression, Niveau, UV
-		- Pilotage de relay, moteur
-	- Gérer le 
+	- Gérer la possibilité d'envoyer des commandes au client: Pilotage relay, moteur
 
 - Serveur:
 	- Ecriture du serveur
