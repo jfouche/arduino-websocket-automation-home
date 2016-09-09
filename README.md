@@ -25,7 +25,7 @@ L'objectif de ce github est de creer une application opensource de domotique tr�
 ### ROADMAP
 
 - Client:
-	- Ecriture du client (C/C++): Regroupe essentiellement des capteurs: Température, Pression, Niveau, UV
+	- Ecriture du client (C/C++): Regroupe essentiellement des capteurs: Température, Pression, Niveau, UV, Hall
 	- Gérer la possibilité d'envoyer des commandes au client: Pilotage relay, moteur
 
 - Serveur:
