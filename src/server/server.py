@@ -1,6 +1,9 @@
+#!/usr/bin/env python
+
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import time
 import sqlite3
+import config
 
 conn = sqlite3.connect('domoDatabase.db')
 print ('Opened database successfully')
@@ -28,6 +31,6 @@ class SimpleEcho(WebSocket):
         print (self.address, 'closed')
          
 
-server = SimpleWebSocketServer('', 8000, SimpleEcho)
+server = SimpleWebSocketServer(sockethost, socketport, SimpleEcho)
 server.serveforever()
 conn.close()
