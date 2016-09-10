@@ -1,95 +1,123 @@
 /// <reference path="jquery.d.ts" />
-var c;
-var ws;
+
+let c: DashboadController;
+let ws: WebSocket;
+
 /**
  * DashboadView
  */
-var DashboadView = (function () {
-    function DashboadView() {
+class DashboadView {
+    btnConnect: JQuery;
+    btnDisconnect: JQuery;
+    btnSend: JQuery;
+    btnClear: JQuery;
+    text: JQuery;
+    output: JQuery;
+
+    constructor() {
         this.btnConnect = $("#connectButton");
         this.btnDisconnect = $("#disconnectButton");
         this.btnSend = $("#sendButton");
         this.btnClear = $("#clearButton");
         this.text = $("#inputtext");
         this.output = $("#outputtext");
+
         this.setStateDisconnected();
     }
-    DashboadView.prototype.setStateConnected = function () {
+
+    public setStateConnected() {
         this.btnConnect.prop("disabled", true);
         this.btnDisconnect.prop("disabled", false);
-    };
-    DashboadView.prototype.setStateDisconnected = function () {
+    }
+
+    public setStateDisconnected() {
         this.btnConnect.prop("disabled", false);
         this.btnDisconnect.prop("disabled", true);
-    };
-    DashboadView.prototype.clearText = function () {
+    }
+
+    public clearText() {
         $("#outputtext").val("");
-    };
-    DashboadView.prototype.getText = function () {
+    }
+
+    public getText() : string {
         return this.text.val();
-    };
-    DashboadView.prototype.writeToScreen = function (message) {
+    }
+
+    public writeToScreen(message: string) {
         this.output.val(this.output.val() + message);
         // $("#outputtext").scrollTop = $("#outputtext").scrollHeight;
-    };
-    return DashboadView;
-}());
+    }
+
+}
+
 /**
  * DashboadController
  */
-var DashboadController = (function () {
-    function DashboadController() {
-        var _this = this;
+class DashboadController {
+
+    private view: DashboadView;
+
+    constructor() {
         this.view = new DashboadView();
-        this.view.btnConnect.on("click", function (e) { _this.connect(); });
-        this.view.btnDisconnect.on("click", function (e) { _this.disconnect(); });
-        this.view.btnClear.on("click", function (e) { _this.view.clearText(); });
-        this.view.btnSend.on("click", function (e) { _this.sendText(); });
+
+        this.view.btnConnect.on("click", (e) => { this.connect(); });
+        this.view.btnDisconnect.on("click", (e) => { this.disconnect(); });
+        this.view.btnClear.on("click", (e) => { this.view.clearText(); });
+        this.view.btnSend.on("click", (e) => { this.sendText(); });
     }
-    DashboadController.prototype.connect = function () {
+
+    public connect() {
         init_ws("ws://localhost:8000/");
-    };
-    DashboadController.prototype.disconnect = function () {
+    }
+
+    public disconnect() {
         ws.close();
-    };
-    DashboadController.prototype.sendText = function () {
+    }
+
+    public sendText() {
         this.view.writeToScreen("sending...\n");
         //this.view.writeToScreen("sending" + this.view.getText() + "\n");
         ws.send(this.view.getText());
-    };
-    DashboadController.prototype.onWsOpen = function (evt) {
+    }
+
+    public onWsOpen(evt: Event) {
         this.view.writeToScreen("connected\n");
         this.view.setStateConnected();
-    };
-    DashboadController.prototype.onWsClose = function (evt) {
+    }
+
+    public onWsClose(evt: CloseEvent) {
         this.view.writeToScreen("disconnected\n");
         this.view.setStateDisconnected();
-    };
-    DashboadController.prototype.onWsMessage = function (evt) {
+    }
+
+    public onWsMessage(evt: MessageEvent) {
         this.view.writeToScreen("response: " + evt.data + '\n');
-    };
-    DashboadController.prototype.onWsError = function (evt) {
+    }
+
+    public onWsError(evt: Event) {
         this.view.writeToScreen('error: ' + evt.returnValue + '\n');
-        ws.close();
+        ws.close()
         this.view.setStateDisconnected();
-    };
-    return DashboadController;
-}());
-function init_ws(url) {
+    }
+
+}
+
+function init_ws(url: string) {
     ws = new WebSocket("ws://localhost:8000/");
-    ws.onopen = function (evt) {
+    ws.onopen = function (evt: Event) {
         c.onWsOpen(evt);
     };
-    ws.onclose = function (evt) {
+    ws.onclose = function (evt: CloseEvent) {
         c.onWsClose(evt);
     };
-    ws.onmessage = function (evt) {
+    ws.onmessage = function (evt: MessageEvent) {
         c.onWsMessage(evt);
     };
-    ws.onerror = function (evt) {
+    ws.onerror = function (evt: Event) {
         c.onWsError(evt);
     };
 }
+
 $(function () {
     c = new DashboadController();
 });
