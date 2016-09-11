@@ -12,6 +12,7 @@ from optparse import OptionParser
 class SimpleEcho(WebSocket):
 
    def handleMessage(self):
+      print (self.data)
       self.sendMessage(self.data)
 
    def handleConnected(self):
