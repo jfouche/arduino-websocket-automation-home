@@ -1,7 +1,77 @@
 /// <reference path="jquery.d.ts" />
 
 let c: DashboadController;
-let ws: WebSocket;
+
+interface DashboardWebSocketApiHandler
+{
+    onWsOpen(evt: Event);
+    onWsClose(evt: CloseEvent);
+    onWsError(evt: Event);
+
+    onTemperature(temperature: number);
+}
+
+/**
+ * DashboardWebSocketApi
+ */
+class DashboardWebSocketApi {
+    private url: string;
+    private handler: DashboardWebSocketApiHandler;
+    private ws: WebSocket = null;
+
+    constructor(url: string, handler: DashboardWebSocketApiHandler) {
+        this.url = url;
+        this.handler = handler;
+    }
+
+    public connect()
+    {
+        this.ws = new WebSocket("ws://localhost:8000/");
+        this.ws.onopen  = (evt: Event) => { this.onWsOpen(evt); };
+        this.ws.onclose = (evt: CloseEvent) => { this.onWsClose(evt); };
+        this.ws.onmessage = (evt: MessageEvent) => { this.onWsMessage(evt); };
+        this.ws.onerror = (evt: Event) => { this.onWsError(evt); };
+    }
+
+    public close() {
+        this.ws.close();
+    }
+
+    private onWsOpen(evt: Event) {
+        this.handler.onWsOpen(evt);
+    }
+
+    private onWsClose(evt: CloseEvent) {
+        this.ws = null;
+        this.handler.onWsClose(evt);
+    }
+
+    private onWsMessage(evt: MessageEvent) {
+        let obj: any = JSON.parse(evt.data);
+        if (obj.msg && obj.msg === "temperature")
+        {
+            let temperature: number = Number(obj.temperature);
+            if (!isNaN(temperature))
+            {
+                this.handler.onTemperature(temperature);
+            }
+        }
+    }
+
+    private onWsError(evt: Event) {
+        this.close()
+    }
+
+    public setTemperature(t: number) {
+        let obj = { 'msg': 'setTemperature', 'temperature': t};
+        let frame: string = JSON.stringify(obj);
+        this.send(frame);
+    }
+
+    private send(data: string) {
+        this.ws.send(data);
+    }
+}
 
 /**
  * DashboadView
@@ -53,12 +123,14 @@ class DashboadView {
 /**
  * DashboadController
  */
-class DashboadController {
+class DashboadController implements DashboardWebSocketApiHandler {
 
     private view: DashboadView;
+    private wsApi: DashboardWebSocketApi;
 
     constructor() {
         this.view = new DashboadView();
+        this.wsApi = new DashboardWebSocketApi("ws://localhost:8000/", this);
 
         this.view.btnConnect.on("click", (e) => { this.connect(); });
         this.view.btnDisconnect.on("click", (e) => { this.disconnect(); });
@@ -67,17 +139,19 @@ class DashboadController {
     }
 
     public connect() {
-        init_ws("ws://localhost:8000/");
+        this.wsApi.connect();
     }
 
     public disconnect() {
-        ws.close();
+        this.wsApi.close();
     }
 
     public sendText() {
         this.view.writeToScreen("sending...\n");
-        //this.view.writeToScreen("sending" + this.view.getText() + "\n");
-        ws.send(this.view.getText());
+        let temperature: number = Number(this.view.getText());
+        if (!isNaN(temperature)) {
+            this.wsApi.setTemperature(temperature);
+        }
     }
 
     public onWsOpen(evt: Event) {
@@ -96,26 +170,12 @@ class DashboadController {
 
     public onWsError(evt: Event) {
         this.view.writeToScreen('error: ' + evt.returnValue + '\n');
-        ws.close()
         this.view.setStateDisconnected();
     }
 
-}
-
-function init_ws(url: string) {
-    ws = new WebSocket("ws://localhost:8000/");
-    ws.onopen = function (evt: Event) {
-        c.onWsOpen(evt);
-    };
-    ws.onclose = function (evt: CloseEvent) {
-        c.onWsClose(evt);
-    };
-    ws.onmessage = function (evt: MessageEvent) {
-        c.onWsMessage(evt);
-    };
-    ws.onerror = function (evt: Event) {
-        c.onWsError(evt);
-    };
+    public onTemperature(temperature: number) {
+        this.view.writeToScreen('received temperature: ' + temperature + '\n');
+    }
 }
 
 $(function () {

@@ -1,6 +1,54 @@
 /// <reference path="jquery.d.ts" />
 var c;
-var ws;
+/**
+ * DashboardWebSocketApi
+ */
+var DashboardWebSocketApi = (function () {
+    function DashboardWebSocketApi(url, handler) {
+        this.ws = null;
+        this.url = url;
+        this.handler = handler;
+    }
+    DashboardWebSocketApi.prototype.connect = function () {
+        var _this = this;
+        this.ws = new WebSocket("ws://localhost:8000/");
+        this.ws.onopen = function (evt) { _this.onWsOpen(evt); };
+        this.ws.onclose = function (evt) { _this.onWsClose(evt); };
+        this.ws.onmessage = function (evt) { _this.onWsMessage(evt); };
+        this.ws.onerror = function (evt) { _this.onWsError(evt); };
+    };
+    DashboardWebSocketApi.prototype.close = function () {
+        this.ws.close();
+    };
+    DashboardWebSocketApi.prototype.onWsOpen = function (evt) {
+        this.handler.onWsOpen(evt);
+    };
+    DashboardWebSocketApi.prototype.onWsClose = function (evt) {
+        this.ws = null;
+        this.handler.onWsClose(evt);
+    };
+    DashboardWebSocketApi.prototype.onWsMessage = function (evt) {
+        var obj = JSON.parse(evt.data);
+        if (obj.msg && obj.msg === "temperature") {
+            var temperature = Number(obj.temperature);
+            if (!isNaN(temperature)) {
+                this.handler.onTemperature(temperature);
+            }
+        }
+    };
+    DashboardWebSocketApi.prototype.onWsError = function (evt) {
+        this.close();
+    };
+    DashboardWebSocketApi.prototype.setTemperature = function (t) {
+        var obj = { 'msg': 'setTemperature', 'temperature': t };
+        var frame = JSON.stringify(obj);
+        this.send(frame);
+    };
+    DashboardWebSocketApi.prototype.send = function (data) {
+        this.ws.send(data);
+    };
+    return DashboardWebSocketApi;
+}());
 /**
  * DashboadView
  */
@@ -41,21 +89,24 @@ var DashboadController = (function () {
     function DashboadController() {
         var _this = this;
         this.view = new DashboadView();
+        this.wsApi = new DashboardWebSocketApi("ws://localhost:8000/", this);
         this.view.btnConnect.on("click", function (e) { _this.connect(); });
         this.view.btnDisconnect.on("click", function (e) { _this.disconnect(); });
         this.view.btnClear.on("click", function (e) { _this.view.clearText(); });
         this.view.btnSend.on("click", function (e) { _this.sendText(); });
     }
     DashboadController.prototype.connect = function () {
-        init_ws("ws://localhost:8000/");
+        this.wsApi.connect();
     };
     DashboadController.prototype.disconnect = function () {
-        ws.close();
+        this.wsApi.close();
     };
     DashboadController.prototype.sendText = function () {
         this.view.writeToScreen("sending...\n");
-        //this.view.writeToScreen("sending" + this.view.getText() + "\n");
-        ws.send(this.view.getText());
+        var temperature = Number(this.view.getText());
+        if (!isNaN(temperature)) {
+            this.wsApi.setTemperature(temperature);
+        }
     };
     DashboadController.prototype.onWsOpen = function (evt) {
         this.view.writeToScreen("connected\n");
@@ -70,26 +121,13 @@ var DashboadController = (function () {
     };
     DashboadController.prototype.onWsError = function (evt) {
         this.view.writeToScreen('error: ' + evt.returnValue + '\n');
-        ws.close();
         this.view.setStateDisconnected();
+    };
+    DashboadController.prototype.onTemperature = function (temperature) {
+        this.view.writeToScreen('received temperature: ' + temperature + '\n');
     };
     return DashboadController;
 }());
-function init_ws(url) {
-    ws = new WebSocket("ws://localhost:8000/");
-    ws.onopen = function (evt) {
-        c.onWsOpen(evt);
-    };
-    ws.onclose = function (evt) {
-        c.onWsClose(evt);
-    };
-    ws.onmessage = function (evt) {
-        c.onWsMessage(evt);
-    };
-    ws.onerror = function (evt) {
-        c.onWsError(evt);
-    };
-}
 $(function () {
     c = new DashboadController();
 });
