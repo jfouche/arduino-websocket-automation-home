@@ -25,7 +25,9 @@ class DashboardWebSocketHandler(WebSocket):
     def sendTemperature(self, temperature):
         print('sendTemperature :', temperature)
         obj = {'msg': 'temperature', 'temperature': temperature}
-        self.sendMessage(json.dumps(obj))
+        msg = json.dumps(obj);
+        for fileno, connection in self.server.connections.items() :
+            connection.sendMessage(msg)
 
 
 

@@ -56,7 +56,9 @@ var DashboadView = (function () {
     function DashboadView() {
         this.btnConnect = $("#connectButton");
         this.btnDisconnect = $("#disconnectButton");
+        this.btnSend = $("#sendButton");
         this.btnClear = $("#clearButton");
+        this.temperature = $("#temperature");
         this.output = $("#outputtext");
         this.setStateDisconnected();
     }
@@ -70,6 +72,9 @@ var DashboadView = (function () {
     };
     DashboadView.prototype.clearText = function () {
         $("#outputtext").val("");
+    };
+    DashboadView.prototype.getText = function () {
+        return this.temperature.val();
     };
     DashboadView.prototype.writeToScreen = function (message) {
         this.output.val(this.output.val() + message);
@@ -88,12 +93,20 @@ var DashboadController = (function () {
         this.view.btnConnect.on("click", function (e) { _this.connect(); });
         this.view.btnDisconnect.on("click", function (e) { _this.disconnect(); });
         this.view.btnClear.on("click", function (e) { _this.view.clearText(); });
+        this.view.btnSend.on("click", function (e) { _this.sendText(); });
     }
     DashboadController.prototype.connect = function () {
         this.wsApi.connect();
     };
     DashboadController.prototype.disconnect = function () {
         this.wsApi.close();
+    };
+    DashboadController.prototype.sendText = function () {
+        this.view.writeToScreen("sending...\n");
+        var temperature = Number(this.view.getText());
+        if (!isNaN(temperature)) {
+            this.wsApi.setTemperature(temperature);
+        }
     };
     DashboadController.prototype.onWsOpen = function (evt) {
         this.view.writeToScreen("connected\n");

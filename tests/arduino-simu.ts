@@ -79,13 +79,17 @@ class DashboardWebSocketApi {
 class DashboadView {
     btnConnect: JQuery;
     btnDisconnect: JQuery;
+    btnSend: JQuery;
     btnClear: JQuery;
+    temperature: JQuery;
     output: JQuery;
 
     constructor() {
         this.btnConnect = $("#connectButton");
         this.btnDisconnect = $("#disconnectButton");
+        this.btnSend = $("#sendButton");
         this.btnClear = $("#clearButton");
+        this.temperature = $("#temperature");
         this.output = $("#outputtext");
 
         this.setStateDisconnected();
@@ -103,6 +107,10 @@ class DashboadView {
 
     public clearText() {
         $("#outputtext").val("");
+    }
+
+    public getText() : string {
+        return this.temperature.val();
     }
 
     public writeToScreen(message: string) {
@@ -127,6 +135,7 @@ class DashboadController implements DashboardWebSocketApiHandler {
         this.view.btnConnect.on("click", (e) => { this.connect(); });
         this.view.btnDisconnect.on("click", (e) => { this.disconnect(); });
         this.view.btnClear.on("click", (e) => { this.view.clearText(); });
+        this.view.btnSend.on("click", (e) => { this.sendText(); });
     }
 
     public connect() {
@@ -135,6 +144,14 @@ class DashboadController implements DashboardWebSocketApiHandler {
 
     public disconnect() {
         this.wsApi.close();
+    }
+
+    public sendText() {
+        this.view.writeToScreen("sending...\n");
+        let temperature: number = Number(this.view.getText());
+        if (!isNaN(temperature)) {
+            this.wsApi.setTemperature(temperature);
+        }
     }
 
     public onWsOpen(evt: Event) {
