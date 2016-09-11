@@ -3,7 +3,7 @@ import sqlite3
 conn = sqlite3.connect('dashboard.db')
 
 __DB_INIT = """
-create table if not exists tempatures (
+create table if not exists temperatures (
     id integer primary key,
     value int
 )
@@ -18,5 +18,5 @@ class Dashboard(object):
 
     def add_temperatures(self, value):
         c = conn.cursor()
-        c.execute("insert intotempertatures values (NULL, ?)", value)
+        c.execute("insert into temperatures values (NULL, ?)", value)
         self.conn.commit()
