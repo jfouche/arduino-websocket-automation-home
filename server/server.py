@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#coding: utf-8
 
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import time
@@ -29,8 +30,13 @@ class SimpleEcho(WebSocket):
 
     def handleClose(self):
         print (self.address, 'closed')
-         
 
-server = SimpleWebSocketServer(sockethost, socketport, SimpleEcho)
-server.serveforever()
-conn.close()
+
+
+try:
+	while 1:
+		server = SimpleWebSocketServer(config.sockethost, config.socketport, SimpleEcho)
+		server.serveforever()
+except KeyboardInterrupt:
+	#[conn.close() for client in self.clients]
+	conn.close()
