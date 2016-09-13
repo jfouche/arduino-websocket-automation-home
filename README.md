@@ -8,15 +8,15 @@ L'objectif de ce github est de creer une application opensource de domotique tr�
 
 ```Javascript
                                                 |-----------|
-                                                | Webserver |
-                                                | dashboard |
+                                                |    www    |
+                                                |           |
                                                 |-----------| 
                                                       ||
                                                       ||
                                                       ||(WebSocket)
                                                       ||
 |-----------|                                   |-----------|        |-----------|
-| Arduino   |                                   |  Python   |        | Data Base |
+|  Arduino  |                                   |  Python   |        | Data Base |
 |  Client   |<=========Ethernet/Wireless=======>|  Server   |<======>|  SQLlite  |
 | Websocket |            (WebSocket)            | Websocket |        |-----------|
 |-----------|                                   |-----------|
@@ -36,8 +36,8 @@ L'objectif de ce github est de creer une application opensource de domotique tr�
 - Base de donnée:
 	- Créer/trouver une organisation de la base de données
 
-- IHM/Dashboard:
-	- Organiser le dashboard
+- www:
+	- Page Web du dashboard
 	- Exploiter la remonter des données de la base de données
 	- Intégrer des graphiques style http://www.highcharts.com/demo/dynamic-update
 
@@ -48,7 +48,8 @@ Compiler avec l'IDE arduino 1.6.2 ou superieur.
 
 ### Credit
 
-https://github.com/djsb/arduino-websocketclient
+- https://github.com/djsb/arduino-websocketclient
+- https://github.com/adngdb/python-websocket-server/blob/master/websocketserver.py
 
 ---------------------
 The MIT License (MIT)
