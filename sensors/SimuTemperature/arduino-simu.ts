@@ -1,77 +1,9 @@
-/// <reference path="jquery.d.ts" />
+/// <reference path="../../application/jquery.d.ts" />
+
+import { DashboardWebSocketApiHandler, DashboardWebSocketApi } from '../../application/wsApi';
+
 
 let c: DashboadController;
-
-interface DashboardWebSocketApiHandler
-{
-    onWsOpen(evt: Event);
-    onWsClose(evt: CloseEvent);
-    onWsError(evt: Event);
-
-    onTemperature(temperature: number);
-}
-
-/**
- * DashboardWebSocketApi
- */
-class DashboardWebSocketApi {
-    private url: string;
-    private handler: DashboardWebSocketApiHandler;
-    private ws: WebSocket = null;
-
-    constructor(url: string, handler: DashboardWebSocketApiHandler) {
-        this.url = url;
-        this.handler = handler;
-    }
-
-    public connect()
-    {
-        this.ws = new WebSocket("ws://localhost:8000/");
-        this.ws.onopen  = (evt: Event) => { this.onWsOpen(evt); };
-        this.ws.onclose = (evt: CloseEvent) => { this.onWsClose(evt); };
-        this.ws.onmessage = (evt: MessageEvent) => { this.onWsMessage(evt); };
-        this.ws.onerror = (evt: Event) => { this.onWsError(evt); };
-    }
-
-    public close() {
-        this.ws.close();
-    }
-
-    private onWsOpen(evt: Event) {
-        this.handler.onWsOpen(evt);
-    }
-
-    private onWsClose(evt: CloseEvent) {
-        this.ws = null;
-        this.handler.onWsClose(evt);
-    }
-
-    private onWsMessage(evt: MessageEvent) {
-        let obj: any = JSON.parse(evt.data);
-        if (obj.msg && obj.msg === "temperature")
-        {
-            let temperature: number = Number(obj.temperature);
-            if (!isNaN(temperature))
-            {
-                this.handler.onTemperature(temperature);
-            }
-        }
-    }
-
-    private onWsError(evt: Event) {
-        this.close()
-    }
-
-    public setTemperature(t: number) {
-        let obj = { 'msg': 'setTemperature', 'temperature': t};
-        let frame: string = JSON.stringify(obj);
-        this.send(frame);
-    }
-
-    private send(data: string) {
-        this.ws.send(data);
-    }
-}
 
 /**
  * DashboadView

@@ -1,0 +1,17 @@
+{
+    "compileOnSave": true,
+
+    "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": true,
+        "target": "es5",
+        "removeComments": true,
+        "preserveConstEnums": true
+            /*,
+                    "outFile": "www/dashboard.js"*/
+    },
+    "files": [
+        "application/dashboard.ts",
+        "application/wsapi.ts"
+    ]
+}

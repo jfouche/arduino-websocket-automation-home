@@ -1,0 +1,105 @@
+/// <reference path="jquery.d.ts" />
+
+import { DashboardWebSocketApiHandler, DashboardWebSocketApi } from './wsApi';
+
+let c: DashboadController;
+
+interface DashboadViewListener
+{
+    connect() : void;
+    disconnect() : void;
+}
+
+/**
+ * DashboadView
+ */
+class DashboadView {;
+    listener: DashboadViewListener
+    btnConnect: JQuery;
+    btnDisconnect: JQuery;
+    btnClear: JQuery;
+    output: JQuery;
+
+    constructor(listener: DashboadViewListener) {
+        this.listener = listener;
+        this.btnConnect = $("#connectButton");
+        this.btnDisconnect = $("#disconnectButton");
+        this.btnClear = $("#clearButton");
+        this.output = $("#outputtext");
+
+        this.btnClear.on("click", (e) => { this.clearText(); });
+        this.btnConnect.on("click", (e) => { this.listener.connect(); });
+        this.btnDisconnect.on("click", (e) => { this.listener.disconnect(); });
+
+        this.setStateDisconnected();
+    }
+
+    public setStateConnected() {
+        this.btnConnect.prop("disabled", true);
+        this.btnDisconnect.prop("disabled", false);
+    }
+
+    public setStateDisconnected() {
+        this.btnConnect.prop("disabled", false);
+        this.btnDisconnect.prop("disabled", true);
+    }
+
+    public clearText() {
+        $("#outputtext").val("");
+    }
+
+    public writeToScreen(message: string) {
+        this.output.val(this.output.val() + message);
+        // $("#outputtext").scrollTop = $("#outputtext").scrollHeight;
+    }
+
+}
+
+/**
+ * DashboadController
+ */
+class DashboadController implements DashboardWebSocketApiHandler, DashboadViewListener {
+
+    private view: DashboadView;
+    private wsApi: DashboardWebSocketApi;
+
+    constructor() {
+        this.view = new DashboadView(this);
+        this.wsApi = new DashboardWebSocketApi("ws://localhost:8000/", this);
+    }
+
+    public connect() {
+        this.wsApi.connect();
+    }
+
+    public disconnect() {
+        this.wsApi.close();
+    }
+
+    public onWsOpen(evt: Event) {
+        this.view.writeToScreen("connected\n");
+        this.view.setStateConnected();
+    }
+
+    public onWsClose(evt: CloseEvent) {
+        this.view.writeToScreen("disconnected\n");
+        this.view.setStateDisconnected();
+    }
+
+    public onWsMessage(evt: MessageEvent) {
+        this.view.writeToScreen("response: " + evt.data + '\n');
+    }
+
+    public onWsError(evt: Event) {
+        this.view.writeToScreen('error: ' + evt.returnValue + '\n');
+        this.view.setStateDisconnected();
+    }
+
+    public onTemperature(temperature: number) {
+        this.view.writeToScreen('received temperature: ' + temperature + '\n');
+    }
+}
+
+$(function () {
+    c = new DashboadController();
+});

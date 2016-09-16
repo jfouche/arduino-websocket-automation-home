@@ -1,42 +1,67 @@
-#!/usr/bin/env python
-#coding: utf-8
-
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
-import time
+import json
 import sqlite3
-import config
+import time
 
-conn = sqlite3.connect('domoDatabase.db')
-print ('Opened database successfully')
-       
-class SimpleEcho(WebSocket):
+SQL_CREATE_TEMPERATURE = """
+    CREATE TABLE IF NOT EXISTS temperatures (
+        id integer primary key,
+        time integer,
+        temperature integer
+    )
+"""
 
-    def traiteRequeteRecue(self):
-       #cursor = conn.execute('SELECT * FROM tempsHum WHERE idSonde=5')
-       msg = self.data
-       dataRecu = msg.split("/")
-       t = (dataRecu[0],dataRecu[1],dataRecu[2])
-       cursor = conn.execute('INSERT INTO tempsHum values (5, ?, ?, ?, date(\'now\'))', t)
-       #for row in cursor:
-       #   self.sendMessage("Temperature de "+ str(row[2])+ "°C dans la "+ str(row[1])+" avec "+ str(row[3])+"% d'humidité.")
-       conn.commit()
-       self.sendMessage("OK");
-       
-    def handleMessage(self):
-        self.traiteRequeteRecue()
+# ============================================================================
+class DashboardDatabase(object) :
+
+    def __init__(self, dbname) :
+        self.db = sqlite3.connect(dbname)
+        cursor = self.db.cursor()
+        cursor.execute(SQL_CREATE_TEMPERATURE)
+        self.db.commit()
+
+    def addTemperature(self, time, temperature):
+        cursor = self.db.cursor()
+        cursor.execute("INSERT INTO temperatures values (NULL, ?, ?)", (time, temperature))
+        self.db.commit()
+
+DB = DashboardDatabase("dashboard.db3")
+
+# ============================================================================
+class DashboardWebSocketHandler(WebSocket):
 
     def handleConnected(self):
-        print (self.address, 'connected')
+        print(self.address, 'connected')
 
     def handleClose(self):
-        print (self.address, 'closed')
+        print(self.address, 'closed')
 
+    def handleMessage(self):
+        print('message :', self.data)
+        obj = json.loads(self.data)
+        if not obj : return
+        msg = obj["msg"]
+        print('msg :', msg)
+        if not msg: return
+        methodName = "handle_" + msg
+        if hasattr(self, methodName) :
+            getattr(self, methodName)(obj)
 
+    def handle_setTemperature(self, obj) :
+        temperature = int(obj["temperature"])
+        print('temperature', temperature)
+        DB.addTemperature(int(time.time()), temperature)
+        self.sendTemperature(temperature)
 
-try:
-	while 1:
-		server = SimpleWebSocketServer(config.sockethost, config.socketport, SimpleEcho)
-		server.serveforever()
-except KeyboardInterrupt:
-	#[conn.close() for client in self.clients]
-	conn.close()
+    def sendTemperature(self, temperature):
+        print('sendTemperature :', temperature)
+        obj = {'msg': 'temperature', 'temperature': temperature}
+        msg = json.dumps(obj)
+        for fileno, connection in self.server.connections.items() :
+            connection.sendMessage(msg)
+            
+
+# ============================================================================
+if __name__ == "__main__" : 
+    server = SimpleWebSocketServer('', 8000, DashboardWebSocketHandler)
+    server.serveforever()
