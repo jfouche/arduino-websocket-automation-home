@@ -1,6 +1,6 @@
 /// <reference path="jquery.d.ts" />
 
-import { DashboardWebSocketApiHandler, DashboardWebSocketApi } from './wsApi';
+import { DashboardWebSocketConnectionListener, DashboardWebSocketTempertureListener, DashboardWebSocketApi, theWsApi } from './wsApi';
 
 let c: DashboadController;
 
@@ -58,22 +58,22 @@ class DashboadView {;
 /**
  * DashboadController
  */
-class DashboadController implements DashboardWebSocketApiHandler, DashboadViewListener {
+class DashboadController implements DashboardWebSocketConnectionListener, DashboardWebSocketTempertureListener, DashboadViewListener {
 
     private view: DashboadView;
-    private wsApi: DashboardWebSocketApi;
 
     constructor() {
         this.view = new DashboadView(this);
-        this.wsApi = new DashboardWebSocketApi("ws://localhost:8000/", this);
+        theWsApi.addConnectionListener(this);
+        theWsApi.addTemperatureListener(this);
     }
 
     public connect() {
-        this.wsApi.connect();
+        theWsApi.connect("ws://localhost:8000/");
     }
 
     public disconnect() {
-        this.wsApi.close();
+        theWsApi.close();
     }
 
     public onWsOpen(evt: Event) {
@@ -95,8 +95,9 @@ class DashboadController implements DashboardWebSocketApiHandler, DashboadViewLi
         this.view.setStateDisconnected();
     }
 
-    public onTemperature(temperature: number) {
-        this.view.writeToScreen('received temperature: ' + temperature + '\n');
+    public onTemperature(temperature: number, time: number) {
+        let d = new Date(time*1000)
+        this.view.writeToScreen('received temperature: ' + temperature + ' (' + d.toLocaleString() + ')\n');
     }
 }
 

@@ -1,26 +1,26 @@
-export interface DashboardWebSocketApiHandler {
+export interface DashboardWebSocketConnectionListener {
     onWsOpen(evt: Event): void;
     onWsClose(evt: CloseEvent): void;
     onWsError(evt: Event): void;
+}
 
-    onTemperature(temperature: number): void;
+export interface DashboardWebSocketTempertureListener {
+    onTemperature(temperature: number, time: number): void;
 }
 
 /**
  * DashboardWebSocketApi
  */
 export class DashboardWebSocketApi {
-    private url: string;
-    private handler: DashboardWebSocketApiHandler;
     private ws: WebSocket = null;
+    private connectionListeners: Array<DashboardWebSocketConnectionListener> = [];
+    private temperatureListeners: Array<DashboardWebSocketTempertureListener> = [];
 
-    constructor(url: string, handler: DashboardWebSocketApiHandler) {
-        this.url = url;
-        this.handler = handler;
+    constructor() {
     }
 
-    public connect() {
-        this.ws = new WebSocket(this.url);
+    public connect(url: string) {
+        this.ws = new WebSocket(url);
         this.ws.onopen = (evt: Event) => { this.onWsOpen(evt); };
         this.ws.onclose = (evt: CloseEvent) => { this.onWsClose(evt); };
         this.ws.onmessage = (evt: MessageEvent) => { this.onWsMessage(evt); };
@@ -31,13 +31,44 @@ export class DashboardWebSocketApi {
         this.ws.close();
     }
 
+    public addConnectionListener(listener: DashboardWebSocketConnectionListener) {
+        this.connectionListeners.push(listener);
+    }
+
+    public addTemperatureListener(listener: DashboardWebSocketTempertureListener) {
+        this.temperatureListeners.push(listener);
+    }
+
+    public setTemperature(t: number) {
+        let obj = { 'msg': 'setTemperature', 'temperature': t };
+        let frame: string = JSON.stringify(obj);
+        this.send(frame);
+    }
+
+    private sendTemperature(temperature: number, time: number) {
+        this.temperatureListeners.forEach((l) => {
+            l.onTemperature(temperature, time);
+        });
+    }
+
     private onWsOpen(evt: Event) {
-        this.handler.onWsOpen(evt);
+        this.connectionListeners.forEach((l) => {
+            l.onWsOpen(evt);
+        });
     }
 
     private onWsClose(evt: CloseEvent) {
         this.ws = null;
-        this.handler.onWsClose(evt);
+        this.connectionListeners.forEach((l) => {
+            l.onWsClose(evt);
+        });
+    }
+
+    private onWsError(evt: Event) {
+        this.connectionListeners.forEach((l) => {
+            l.onWsError(evt);
+        });
+        this.close()
     }
 
     private onWsMessage(evt: MessageEvent) {
@@ -55,22 +86,15 @@ export class DashboardWebSocketApi {
 
     private onTemperature(obj: any) {
         let temperature: number = Number(obj.temperature);
-        if (!isNaN(temperature)) {
-            this.handler.onTemperature(temperature);
+        let time: number = Number(obj.time);
+        if (!isNaN(temperature) && !isNaN(time)) {
+            this.sendTemperature(temperature, time);
         }
-    }
-
-    private onWsError(evt: Event) {
-        this.close()
-    }
-
-    public setTemperature(t: number) {
-        let obj = { 'msg': 'setTemperature', 'temperature': t };
-        let frame: string = JSON.stringify(obj);
-        this.send(frame);
     }
 
     private send(data: string) {
         this.ws.send(data);
     }
 }
+
+export let theWsApi: DashboardWebSocketApi = new DashboardWebSocketApi();
