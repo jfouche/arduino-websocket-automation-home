@@ -2,6 +2,7 @@ export interface DashboardWebSocketConnectionListener {
     onWsOpen(evt: Event): void;
     onWsClose(evt: CloseEvent): void;
     onWsError(evt: Event): void;
+    onWsMessage(evt: MessageEvent): void;
 }
 
 export interface DashboardWebSocketTempertureListener {
@@ -72,6 +73,9 @@ export class DashboardWebSocketApi {
     }
 
     private onWsMessage(evt: MessageEvent) {
+        this.connectionListeners.forEach((l) => {
+            l.onWsMessage(evt);
+        });
         let obj: any = JSON.parse(evt.data);
         switch (obj.msg) {
             case "temperature":
