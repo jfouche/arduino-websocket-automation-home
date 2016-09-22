@@ -44,18 +44,23 @@ L'objectif de ce github est de creer une application opensource de domotique tr√
 
 ### Prerequis
 
+#### Installation
+
+You can install SimpleWebSocketServer by running the following command...
+sudo pip install git+https://github.com/dpallot/simple-websocket-server.git
+
+Or by downloading the repository and running sudo python setup.py install.
+Installation via pip is suggested.
+
 Compiler avec l'IDE arduino 1.6.2 ou superieur.
 
 
 ### Credit
 
-<<<<<<< HEAD
 - https://github.com/djsb/arduino-websocketclient
 - https://github.com/adngdb/python-websocket-server/blob/master/websocketserver.py
+- https://github.com/dpallot/simple-websocket-server
 =======
-https://github.com/djsb/arduino-websocketclient
-https://github.com/adngdb/python-websocket-server/blob/master/websocketserver.py
->>>>>>> c6414bb2c94beeb08977538ab1548926774a5101
 
 ---------------------
 The MIT License (MIT)

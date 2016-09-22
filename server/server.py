@@ -2,6 +2,7 @@ from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import json
 import sqlite3
 import time
+import config
 
 SQL_CREATE_TEMPERATURE = """
     CREATE TABLE IF NOT EXISTS temperatures (
@@ -65,5 +66,5 @@ class DashboardWebSocketHandler(WebSocket):
 
 # ============================================================================
 if __name__ == "__main__" : 
-    server = SimpleWebSocketServer('', 8000, DashboardWebSocketHandler)
+    server = SimpleWebSocketServer(config.socketBind, config.socketPort, DashboardWebSocketHandler)
     server.serveforever()
