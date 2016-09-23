@@ -40,7 +40,7 @@ L'objectif de ce github est de creer une application opensource de domotique tr�
 - www:
 	- Page Web du dashboard
 	- Exploiter la remonter des données de la base de données
-	- Intégrer des graphiques style http://www.highcharts.com/demo/dynamic-update
+	- Intégrer des graphiques style http://www.highcharts.com/demo/dynamic-update ou Charts.js.org
 
 ### Prerequis
 
@@ -60,7 +60,6 @@ Compiler avec l'IDE arduino 1.6.2 ou superieur.
 - https://github.com/djsb/arduino-websocketclient
 - https://github.com/adngdb/python-websocket-server/blob/master/websocketserver.py
 - https://github.com/dpallot/simple-websocket-server
-=======
 
 ---------------------
-The MIT License (MIT)
+The MIT License (MIT) https://opensource.org/licenses/MIT
