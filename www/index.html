@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8" />
     <title>Dashboard</title>
-    <script type="text/javascript" src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script type="text/javascript" src="lib/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="lib/Chart.bundle.min.js"></script>
 </head>
 
 <body>
@@ -19,6 +20,10 @@
             <input type="button" id="disconnectButton" value="Disconnect">
             <input type="button" id="connectButton" value="Connect">
         </form>
+    </div>
+
+    <div id="temperature">
+        <canvas id="temperatureChart" width="400" height="400"></canvas>
     </div>
 
     <script type="text/javascript" src="app.bundle.js"></script>

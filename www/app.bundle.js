@@ -47,11 +47,13 @@
 	"use strict";
 	var connection_ts_1 = __webpack_require__(1);
 	var logger_ts_1 = __webpack_require__(3);
+	var temperature_ts_1 = __webpack_require__(4);
 	var c;
 	var DashboadController = (function () {
 	    function DashboadController() {
 	        this.connectionController = new connection_ts_1.ConnectionController();
 	        this.loggerController = new logger_ts_1.LoggerController();
+	        this.temperatureController = new temperature_ts_1.TemperatureController();
 	    }
 	    return DashboadController;
 	}());
@@ -205,7 +207,6 @@
 
 	"use strict";
 	var wsApi_1 = __webpack_require__(2);
-	var c;
 	var LoggerView = (function () {
 	    function LoggerView() {
 	        var _this = this;
@@ -213,7 +214,6 @@
 	        this.output = $("#outputtext");
 	        this.btnClear.on("click", function (e) { _this.clearText(); });
 	    }
-	    ;
 	    LoggerView.prototype.clearText = function () {
 	        $("#outputtext").val("");
 	    };
@@ -242,6 +242,53 @@
 	    return LoggerController;
 	}());
 	exports.LoggerController = LoggerController;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	var wsApi_1 = __webpack_require__(2);
+	var TemperatureView = (function () {
+	    function TemperatureView() {
+	        var context = $("#temperatureChart");
+	        this.dataset = {
+	            label: "temperature",
+	            data: []
+	        };
+	        this.data = {
+	            labels: [],
+	            datasets: [this.dataset]
+	        };
+	        var config = {
+	            type: "line",
+	            data: this.data
+	        };
+	        this.chart = new Chart(context, config);
+	    }
+	    TemperatureView.prototype.update = function () {
+	        this.chart.update();
+	    };
+	    TemperatureView.prototype.addTemperature = function (temperature, time) {
+	        this.dataset.data.push(temperature);
+	        var d = new Date(time);
+	        this.data.labels.push(d.toLocaleDateString());
+	        this.update();
+	    };
+	    return TemperatureView;
+	}());
+	var TemperatureController = (function () {
+	    function TemperatureController() {
+	        this.view = new TemperatureView();
+	        wsApi_1.theWsApi.addTemperatureListener(this);
+	    }
+	    TemperatureController.prototype.onTemperature = function (temperature, time) {
+	        this.view.addTemperature(temperature, time);
+	    };
+	    return TemperatureController;
+	}());
+	exports.TemperatureController = TemperatureController;
 
 
 /***/ }

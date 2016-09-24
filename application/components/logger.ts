@@ -1,13 +1,11 @@
-/// <reference path="../jquery.d.ts" />
+/// <reference path="../typings/jquery.d.ts" />
 
 import { DashboardWebSocketConnectionListener, DashboardWebSocketApi, theWsApi } from '../wsApi';
-
-let c: LoggerController;
 
 /**
  * LoggerView
  */
-class LoggerView {;
+class LoggerView {
     btnClear: JQuery;
     output: JQuery;
 
@@ -26,7 +24,6 @@ class LoggerView {;
         this.output.val(this.output.val() + message);
         // $("#outputtext").scrollTop = $("#outputtext").scrollHeight;
     }
-
 }
 
 /**

@@ -5,7 +5,7 @@ export interface DashboardWebSocketConnectionListener {
     onWsMessage(evt: MessageEvent): void;
 }
 
-export interface DashboardWebSocketTempertureListener {
+export interface DashboardWebSocketTemperatureListener {
     onTemperature(temperature: number, time: number): void;
 }
 
@@ -15,7 +15,7 @@ export interface DashboardWebSocketTempertureListener {
 export class DashboardWebSocketApi {
     private ws: WebSocket = null;
     private connectionListeners: Array<DashboardWebSocketConnectionListener> = [];
-    private temperatureListeners: Array<DashboardWebSocketTempertureListener> = [];
+    private temperatureListeners: Array<DashboardWebSocketTemperatureListener> = [];
 
     constructor() {
     }
@@ -36,7 +36,7 @@ export class DashboardWebSocketApi {
         this.connectionListeners.push(listener);
     }
 
-    public addTemperatureListener(listener: DashboardWebSocketTempertureListener) {
+    public addTemperatureListener(listener: DashboardWebSocketTemperatureListener) {
         this.temperatureListeners.push(listener);
     }
 

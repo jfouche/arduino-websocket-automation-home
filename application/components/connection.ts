@@ -1,4 +1,4 @@
-/// <reference path="../jquery.d.ts" />
+/// <reference path="../typings/jquery.d.ts" />
 
 import { DashboardWebSocketConnectionListener, DashboardWebSocketApi, theWsApi } from '../wsApi';
 
@@ -7,7 +7,6 @@ interface ConnectionViewListener
     connect() : void;
     disconnect() : void;
 }
-
 
 /**
  * ConnectionView
