@@ -46,6 +46,12 @@ L'objectif de ce github est de creer une application opensource de domotique tr√
 
 #### Installation
 
+
+1 - Install nodejs
+2 - npm install webpack -g
+3 - cd repository
+4 - npm init
+
 You can install SimpleWebSocketServer by running the following command...
 sudo pip install git+https://github.com/dpallot/simple-websocket-server.git
 
