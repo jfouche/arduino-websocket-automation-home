@@ -3,17 +3,12 @@
 <head>
     <meta charset="utf-8" />
     <title>Dashboard</title>
+    <link rel="stylesheet" href="app.css">
     <script type="text/javascript" src="lib/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="lib/Chart.bundle.min.js"></script>
 </head>
 
 <body>
-    <div id="logger">
-        <form>
-            <textarea id="outputtext" rows="20" cols="50"></textarea>
-            <input type="button" id="clearButton" value="Clear">
-        </form>
-    </div>
 
     <div id="connection">
         <form>
@@ -23,7 +18,14 @@
     </div>
 
     <div id="temperature">
-        <canvas id="temperatureChart" width="400" height="400"></canvas>
+        <canvas id="temperatureChart"></canvas>
+    </div>
+
+    <div id="logger">
+        <form>
+            <textarea id="outputtext" rows="10"></textarea>
+            <input type="button" id="clearButton" value="Clear">
+        </form>
     </div>
 
     <script type="text/javascript" src="app.bundle.js"></script>
