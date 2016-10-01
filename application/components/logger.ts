@@ -1,28 +1,26 @@
-/// <reference path="../typings/jquery.d.ts" />
-
 import { DashboardWebSocketConnectionListener, DashboardWebSocketApi, theWsApi } from '../wsApi';
 
 /**
  * LoggerView
  */
 class LoggerView {
-    btnClear: JQuery;
-    output: JQuery;
+    btnClear: HTMLElement;
+    output: HTMLElement;
 
     constructor() {
-        this.btnClear = $("#clearButton");
-        this.output = $("#outputtext");
+        this.btnClear = document.getElementById("clearButton");
+        this.output = document.getElementById("outputtext");
 
-        this.btnClear.on("click", (e) => { this.clearText(); });
+        this.btnClear.addEventListener("click", (e) => { this.clearText(); });
     }
 
     private clearText() {
-        $("#outputtext").val("");
+        this.output.innerHTML = "";
     }
 
     public writeToScreen(message: string) {
-        this.output.val(this.output.val() + message);
-        // $("#outputtext").scrollTop = $("#outputtext").scrollHeight;
+        this.output.innerHTML = this.output.innerHTML + message;
+        this.output.scrollTop = this.output.scrollHeight;
     }
 }
 

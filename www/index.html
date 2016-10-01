@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <title>Dashboard</title>
     <link rel="stylesheet" href="app.css">
-    <script type="text/javascript" src="lib/jquery-3.1.1.min.js"></script>
     <script type="text/javascript" src="lib/Chart.bundle.min.js"></script>
+    <script type="text/javascript" src="lib/webcomponents-lite.js"></script>
 </head>
 
 <body>
@@ -17,9 +17,7 @@
         </form>
     </div>
 
-    <div id="temperature">
-        <canvas id="temperatureChart"></canvas>
-    </div>
+    <dashboard-temperature id="temperature" title="temperature"></dashboard-temperature>
 
     <div id="logger">
         <form>

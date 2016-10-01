@@ -1,5 +1,3 @@
-/// <reference path="../typings/jquery.d.ts" />
-
 import { DashboardWebSocketConnectionListener, DashboardWebSocketApi, theWsApi } from '../wsApi';
 
 interface ConnectionViewListener
@@ -13,28 +11,28 @@ interface ConnectionViewListener
  */
 class ConnectionView {;
     listener: ConnectionViewListener
-    btnConnect: JQuery;
-    btnDisconnect: JQuery;
+    btnConnect: HTMLElement;
+    btnDisconnect: HTMLElement;
 
     constructor(listener: ConnectionViewListener) {
         this.listener = listener;
-        this.btnConnect = $("#connectButton");
-        this.btnDisconnect = $("#disconnectButton");
+        this.btnConnect = document.getElementById("connectButton");
+        this.btnDisconnect =document.getElementById("disconnectButton");
 
-        this.btnConnect.on("click", (e) => { this.listener.connect(); });
-        this.btnDisconnect.on("click", (e) => { this.listener.disconnect(); });
+        this.btnConnect.addEventListener("click", (e) => { this.listener.connect(); });
+        this.btnDisconnect.addEventListener("click", (e) => { this.listener.disconnect(); });
 
         this.setStateDisconnected();
     }
 
     public setStateConnected() {
-        this.btnConnect.prop("disabled", true);
-        this.btnDisconnect.prop("disabled", false);
+        this.btnConnect.setAttribute("disabled", "true");
+        this.btnDisconnect.removeAttribute("disabled");
     }
 
     public setStateDisconnected() {
-        this.btnConnect.prop("disabled", false);
-        this.btnDisconnect.prop("disabled", true);
+        this.btnConnect.removeAttribute("disabled");
+        this.btnDisconnect.setAttribute("disabled", "true");
     }
 }
 
