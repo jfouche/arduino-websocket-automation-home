@@ -1,58 +1,45 @@
-/// <reference path="../typings/jquery.d.ts" />
-/// <reference path="../typings/chart.d.ts" />
+/// <reference path="../typings/webcomponents.d.ts" />
 
 import { DashboardWebSocketTemperatureListener, theWsApi } from '../wsApi';
+import { MyLineChart } from './dashboardChart'
 
-/**
- * TemperatureView
- */
-class TemperatureView {
-    chart: Chart;
-    data: LineChartData;
-    dataset: LineChartDataset;
+class TemperatureChartElement extends HTMLElement {
+    chart: MyLineChart;
 
     constructor() {
-        let context = $("#temperatureChart");
-        this.dataset = {
-            label: "temperature",
-            data: []
-        }
-        this.data = {
-            labels: [],
-            datasets: [this.dataset]
-        }
-        let config: LineChartConfig = {
-            type: "line",
-            data: this.data
-        };
-        this.chart = new Chart(context, config);
+        super();
     }
 
-    private update() {
-        this.chart.update();
-    }
-
-    public addTemperature(temperature: number, time: number) {
-        this.dataset.data.push(temperature);
-        let d = new Date(time);
-        this.data.labels.push(d.toLocaleDateString());
-        this.update();
+    createdCallback(): void {
+        console.log("TemperatureChartElement.createdCallback()");
+        let canvas = document.createElement("canvas");
+        canvas.width = 600;
+        canvas.height = 400;
+        this.appendChild(canvas);
+        this.chart = new MyLineChart(canvas, this.title);
+        new TemperatureController(this);
     }
 }
 
 /**
  * TemperatureController
  */
-export class TemperatureController implements DashboardWebSocketTemperatureListener {
+class TemperatureController implements DashboardWebSocketTemperatureListener {
 
-    private view: TemperatureView;
+    private view: TemperatureChartElement;
 
-    constructor() {
-        this.view = new TemperatureView();
+    constructor(chartElement: TemperatureChartElement) {
+        this.view = chartElement;
         theWsApi.addTemperatureListener(this);
     }
 
     public onTemperature(temperature: number, time: number) {
-        this.view.addTemperature(temperature, time);
+        let d = new Date(time);
+        this.view.chart.add(temperature, d.toTimeString());
     }
+}
+
+export function registerTemperatureChartElement()
+{
+    document.registerElement('dashboard-temperature', TemperatureChartElement);
 }

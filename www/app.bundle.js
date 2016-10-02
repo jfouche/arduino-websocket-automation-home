@@ -48,18 +48,9 @@
 	var connection_ts_1 = __webpack_require__(1);
 	var logger_ts_1 = __webpack_require__(3);
 	var temperature_ts_1 = __webpack_require__(4);
-	var c;
-	var DashboadController = (function () {
-	    function DashboadController() {
-	        this.connectionController = new connection_ts_1.ConnectionController();
-	        this.loggerController = new logger_ts_1.LoggerController();
-	        this.temperatureController = new temperature_ts_1.TemperatureController();
-	    }
-	    return DashboadController;
-	}());
-	$(function () {
-	    c = new DashboadController();
-	});
+	connection_ts_1.registerDashboardConnectionElement();
+	logger_ts_1.registerDashboardLoggerElement();
+	temperature_ts_1.registerTemperatureChartElement();
 
 
 /***/ },
@@ -67,31 +58,60 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
 	var wsApi_1 = __webpack_require__(2);
-	var ConnectionView = (function () {
-	    function ConnectionView(listener) {
-	        var _this = this;
-	        this.listener = listener;
-	        this.btnConnect = $("#connectButton");
-	        this.btnDisconnect = $("#disconnectButton");
-	        this.btnConnect.on("click", function (e) { _this.listener.connect(); });
-	        this.btnDisconnect.on("click", function (e) { _this.listener.disconnect(); });
-	        this.setStateDisconnected();
+	var State;
+	(function (State) {
+	    State[State["CONNECTED"] = 1] = "CONNECTED";
+	    State[State["DISCONNECTED"] = 2] = "DISCONNECTED";
+	})(State || (State = {}));
+	;
+	var DashboardConnectionElement = (function (_super) {
+	    __extends(DashboardConnectionElement, _super);
+	    function DashboardConnectionElement() {
+	        _super.apply(this, arguments);
 	    }
-	    ;
-	    ConnectionView.prototype.setStateConnected = function () {
-	        this.btnConnect.prop("disabled", true);
-	        this.btnDisconnect.prop("disabled", false);
+	    DashboardConnectionElement.prototype.createdCallback = function () {
+	        var _this = this;
+	        console.log("DashboardConnectionElement.createdCallback()");
+	        this.btnConnect = document.createElement("input");
+	        this.btnConnect.type = "button";
+	        this.appendChild(this.btnConnect);
+	        this.state = State.DISCONNECTED;
+	        this.controller = new ConnectionController(this);
+	        this.btnConnect.addEventListener("click", function (e) {
+	            switch (_this.state) {
+	                case State.CONNECTED:
+	                    _this.controller.disconnect();
+	                    break;
+	                case State.DISCONNECTED:
+	                    _this.controller.connect();
+	                    break;
+	            }
+	        });
+	        this.setStateDisconnected();
 	    };
-	    ConnectionView.prototype.setStateDisconnected = function () {
-	        this.btnConnect.prop("disabled", false);
-	        this.btnDisconnect.prop("disabled", true);
+	    DashboardConnectionElement.prototype.attachedCallback = function () {
+	        console.log("DashboardConnectionElement.attachedCallback()");
 	    };
-	    return ConnectionView;
-	}());
+	    DashboardConnectionElement.prototype.setStateConnected = function () {
+	        this.state = State.CONNECTED;
+	        this.btnConnect.value = "Disconnect";
+	    };
+	    DashboardConnectionElement.prototype.setStateDisconnected = function () {
+	        this.state = State.DISCONNECTED;
+	        this.btnConnect.value = "Connect";
+	    };
+	    return DashboardConnectionElement;
+	}(HTMLDivElement));
 	var ConnectionController = (function () {
-	    function ConnectionController() {
-	        this.view = new ConnectionView(this);
+	    function ConnectionController(view) {
+	        this.view = view;
+	        this.view.controller = this;
 	        wsApi_1.theWsApi.addConnectionListener(this);
 	    }
 	    ConnectionController.prototype.connect = function () {
@@ -114,6 +134,10 @@
 	    return ConnectionController;
 	}());
 	exports.ConnectionController = ConnectionController;
+	function registerDashboardConnectionElement() {
+	    document.registerElement('dashboard-connection', DashboardConnectionElement);
+	}
+	exports.registerDashboardConnectionElement = registerDashboardConnectionElement;
 
 
 /***/ },
@@ -206,25 +230,45 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
 	var wsApi_1 = __webpack_require__(2);
-	var LoggerView = (function () {
-	    function LoggerView() {
-	        var _this = this;
-	        this.btnClear = $("#clearButton");
-	        this.output = $("#outputtext");
-	        this.btnClear.on("click", function (e) { _this.clearText(); });
+	var DashboardLoggerElement = (function (_super) {
+	    __extends(DashboardLoggerElement, _super);
+	    function DashboardLoggerElement() {
+	        _super.call(this);
 	    }
-	    LoggerView.prototype.clearText = function () {
-	        $("#outputtext").val("");
+	    DashboardLoggerElement.prototype.createdCallback = function () {
+	        var _this = this;
+	        console.log("DashboardLoggerElement.createdCallback()");
+	        this.textarea = document.createElement("textarea");
+	        var btnClear = document.createElement("input");
+	        btnClear.type = "button";
+	        btnClear.value = "clear";
+	        this.appendChild(this.textarea);
+	        this.appendChild(btnClear);
+	        btnClear.addEventListener("click", function (e) {
+	            _this.clearText();
+	        });
+	        new LoggerController(this);
 	    };
-	    LoggerView.prototype.writeToScreen = function (message) {
-	        this.output.val(this.output.val() + message);
+	    DashboardLoggerElement.prototype.clearText = function () {
+	        this.textarea.innerHTML = "";
 	    };
-	    return LoggerView;
-	}());
+	    DashboardLoggerElement.prototype.writeToScreen = function (message) {
+	        var now = new Date();
+	        this.textarea.innerHTML = this.textarea.innerHTML + now.toLocaleTimeString() + " : " + message;
+	        this.textarea.scrollTop = this.textarea.scrollHeight;
+	    };
+	    return DashboardLoggerElement;
+	}(HTMLCanvasElement));
+	exports.DashboardLoggerElement = DashboardLoggerElement;
 	var LoggerController = (function () {
-	    function LoggerController() {
-	        this.view = new LoggerView();
+	    function LoggerController(view) {
+	        this.view = view;
 	        wsApi_1.theWsApi.addConnectionListener(this);
 	    }
 	    LoggerController.prototype.onWsOpen = function (evt) {
@@ -241,7 +285,10 @@
 	    };
 	    return LoggerController;
 	}());
-	exports.LoggerController = LoggerController;
+	function registerDashboardLoggerElement() {
+	    document.registerElement('dashboard-logger', DashboardLoggerElement);
+	}
+	exports.registerDashboardLoggerElement = registerDashboardLoggerElement;
 
 
 /***/ },
@@ -249,12 +296,55 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
+	var __extends = (this && this.__extends) || function (d, b) {
+	    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+	    function __() { this.constructor = d; }
+	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+	};
 	var wsApi_1 = __webpack_require__(2);
-	var TemperatureView = (function () {
-	    function TemperatureView() {
-	        var context = $("#temperatureChart");
+	var dashboardChart_1 = __webpack_require__(5);
+	var TemperatureChartElement = (function (_super) {
+	    __extends(TemperatureChartElement, _super);
+	    function TemperatureChartElement() {
+	        _super.call(this);
+	    }
+	    TemperatureChartElement.prototype.createdCallback = function () {
+	        console.log("TemperatureChartElement.createdCallback()");
+	        var canvas = document.createElement("canvas");
+	        canvas.width = 600;
+	        canvas.height = 400;
+	        this.appendChild(canvas);
+	        this.chart = new dashboardChart_1.MyLineChart(canvas, this.title);
+	        new TemperatureController(this);
+	    };
+	    return TemperatureChartElement;
+	}(HTMLElement));
+	var TemperatureController = (function () {
+	    function TemperatureController(chartElement) {
+	        this.view = chartElement;
+	        wsApi_1.theWsApi.addTemperatureListener(this);
+	    }
+	    TemperatureController.prototype.onTemperature = function (temperature, time) {
+	        var d = new Date(time);
+	        this.view.chart.add(temperature, d.toTimeString());
+	    };
+	    return TemperatureController;
+	}());
+	function registerTemperatureChartElement() {
+	    document.registerElement('dashboard-temperature', TemperatureChartElement);
+	}
+	exports.registerTemperatureChartElement = registerTemperatureChartElement;
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	"use strict";
+	var MyLineChart = (function () {
+	    function MyLineChart(canvas, label) {
 	        this.dataset = {
-	            label: "temperature",
+	            label: label,
 	            data: []
 	        };
 	        this.data = {
@@ -265,30 +355,19 @@
 	            type: "line",
 	            data: this.data
 	        };
-	        this.chart = new Chart(context, config);
+	        this.chart = new Chart(canvas.getContext("2d"), config);
 	    }
-	    TemperatureView.prototype.update = function () {
-	        this.chart.update();
-	    };
-	    TemperatureView.prototype.addTemperature = function (temperature, time) {
-	        this.dataset.data.push(temperature);
-	        var d = new Date(time);
-	        this.data.labels.push(d.toLocaleDateString());
+	    MyLineChart.prototype.add = function (value, label) {
+	        this.dataset.data.push(value);
+	        this.data.labels.push(label);
 	        this.update();
 	    };
-	    return TemperatureView;
-	}());
-	var TemperatureController = (function () {
-	    function TemperatureController() {
-	        this.view = new TemperatureView();
-	        wsApi_1.theWsApi.addTemperatureListener(this);
-	    }
-	    TemperatureController.prototype.onTemperature = function (temperature, time) {
-	        this.view.addTemperature(temperature, time);
+	    MyLineChart.prototype.update = function () {
+	        this.chart.update();
 	    };
-	    return TemperatureController;
+	    return MyLineChart;
 	}());
-	exports.TemperatureController = TemperatureController;
+	exports.MyLineChart = MyLineChart;
 
 
 /***/ }

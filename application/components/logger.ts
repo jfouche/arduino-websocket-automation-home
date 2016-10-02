@@ -1,38 +1,51 @@
+/// <reference path="../typings/webcomponents.d.ts" />
+
 import { DashboardWebSocketConnectionListener, DashboardWebSocketApi, theWsApi } from '../wsApi';
 
-/**
- * LoggerView
- */
-class LoggerView {
-    btnClear: HTMLElement;
-    output: HTMLElement;
+export class DashboardLoggerElement extends HTMLCanvasElement {
+
+    private textarea: HTMLTextAreaElement;
 
     constructor() {
-        this.btnClear = document.getElementById("clearButton");
-        this.output = document.getElementById("outputtext");
-
-        this.btnClear.addEventListener("click", (e) => { this.clearText(); });
+        super();
     }
 
-    private clearText() {
-        this.output.innerHTML = "";
+    createdCallback(): void {
+        console.log("DashboardLoggerElement.createdCallback()");
+        this.textarea = document.createElement("textarea");
+        let btnClear = document.createElement("input");
+        btnClear.type = "button";
+        btnClear.value = "clear";
+        this.appendChild(this.textarea);
+        this.appendChild(btnClear);
+
+        btnClear.addEventListener("click", (e) => {
+            this.clearText();
+        });
+
+        new LoggerController(this);
+    }
+
+    clearText() {
+        this.textarea.innerHTML = "";
     }
 
     public writeToScreen(message: string) {
-        this.output.innerHTML = this.output.innerHTML + message;
-        this.output.scrollTop = this.output.scrollHeight;
+        let now = new Date();
+        this.textarea.innerHTML = this.textarea.innerHTML + now.toLocaleTimeString() + " : " + message;
+        this.textarea.scrollTop = this.textarea.scrollHeight;
     }
 }
 
 /**
  * LoggerController
  */
-export class LoggerController implements DashboardWebSocketConnectionListener {
+class LoggerController implements DashboardWebSocketConnectionListener {
 
-    private view: LoggerView;
+    private view: DashboardLoggerElement;
 
-    constructor() {
-        this.view = new LoggerView();
+    constructor(view : DashboardLoggerElement) {
+        this.view = view;
         theWsApi.addConnectionListener(this);
     }
 
@@ -51,4 +64,9 @@ export class LoggerController implements DashboardWebSocketConnectionListener {
     public onWsError(evt: Event) {
         this.view.writeToScreen('error: ' + evt.returnValue + '\n');
     }
+}
+
+
+export function registerDashboardLoggerElement() {
+    document.registerElement('dashboard-logger', DashboardLoggerElement);
 }

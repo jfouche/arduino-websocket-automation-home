@@ -1,28 +1,25 @@
-// out: ../www/app.css, compress: true, sourceMap: false
+// out: ../www/app.css, compress: false, sourceMap: false
 
 body {
     background: black;
 }
 
-#connection {
-    margin: 2px;
-    padding: 5px;
-    text-align: right;
-    form {
+#header { 
+    h1 {
         display: inline;
+        color: white;
+    }
+
+    dashboard-connection {
+        float: right;
     }
 }
 
-#temperature {
-    #temperatureChart {
-        background: white;
-        width: 100%;
-        height: 200px;
-    }
+dashboard-temperature {
+    background: white;
 }
 
-#logger {
-    #outputtext {
-        width: 100%;
-    }
+dashboard-logger {
+    display: block;
+    width: 100%;
 }

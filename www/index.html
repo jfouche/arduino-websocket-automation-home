@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<html>
 
 <head>
     <meta charset="utf-8" />
@@ -6,27 +7,19 @@
     <link rel="stylesheet" href="app.css">
     <script type="text/javascript" src="lib/Chart.bundle.min.js"></script>
     <script type="text/javascript" src="lib/webcomponents-lite.js"></script>
+    <script type="text/javascript" src="app.bundle.js"></script>
 </head>
 
 <body>
-
-    <div id="connection">
-        <form>
-            <input type="button" id="disconnectButton" value="Disconnect">
-            <input type="button" id="connectButton" value="Connect">
-        </form>
+    <div id="header">
+        <h1>Dashboard</h1>
+        <dashboard-connection></dashboard-connection>
     </div>
 
-    <dashboard-temperature id="temperature" title="temperature"></dashboard-temperature>
+    <dashboard-temperature title="temperature"></dashboard-temperature>
 
-    <div id="logger">
-        <form>
-            <textarea id="outputtext" rows="10"></textarea>
-            <input type="button" id="clearButton" value="Clear">
-        </form>
-    </div>
+    <dashboard-logger></dashboard-logger>
 
-    <script type="text/javascript" src="app.bundle.js"></script>
 </body>
 
 </html>
