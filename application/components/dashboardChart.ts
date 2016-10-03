@@ -4,22 +4,22 @@
  * MyLineChart
  */
 export class MyLineChart {
-    chart: Chart;
-    data: LineChartData;
-    dataset: LineChartDataset;
+    private chart: Chart;
+    private data: LineChartData;
+    private dataset: LineChartDataset;
 
     constructor(canvas: HTMLCanvasElement, label: string) {
         this.dataset = {
+            data: [],
             label: label,
-            data: []
-        }
+        };
         this.data = {
+            datasets: [this.dataset],
             labels: [],
-            datasets: [this.dataset]
-        }
+        };
         let config: LineChartConfig = {
+            data: this.data,
             type: "line",
-            data: this.data
         };
         this.chart = new Chart(canvas.getContext("2d"), config);
     }

@@ -41,7 +41,7 @@ export class DashboardWebSocketApi {
     }
 
     public setTemperature(t: number) {
-        let obj = { 'msg': 'setTemperature', 'temperature': t };
+        let obj = { "msg": "setTemperature", "temperature": t };
         let frame: string = JSON.stringify(obj);
         this.send(frame);
     }
@@ -69,7 +69,7 @@ export class DashboardWebSocketApi {
         this.connectionListeners.forEach((l) => {
             l.onWsError(evt);
         });
-        this.close()
+        this.close();
     }
 
     private onWsMessage(evt: MessageEvent) {

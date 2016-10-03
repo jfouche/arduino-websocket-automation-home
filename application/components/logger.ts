@@ -1,6 +1,6 @@
 /// <reference path="../typings/webcomponents.d.ts" />
 
-import { DashboardWebSocketConnectionListener, DashboardWebSocketApi, theWsApi } from '../wsApi';
+import { DashboardWebSocketConnectionListener, DashboardWebSocketApi, theWsApi } from "../wsApi";
 
 export class DashboardLoggerElement extends HTMLCanvasElement {
 
@@ -10,7 +10,13 @@ export class DashboardLoggerElement extends HTMLCanvasElement {
         super();
     }
 
-    createdCallback(): void {
+    public writeToScreen(message: string) {
+        let now = new Date();
+        this.textarea.innerHTML = this.textarea.innerHTML + now.toLocaleTimeString() + " : " + message;
+        this.textarea.scrollTop = this.textarea.scrollHeight;
+    }
+
+    protected createdCallback(): void {
         console.log("DashboardLoggerElement.createdCallback()");
         this.textarea = document.createElement("textarea");
         let btnClear = document.createElement("input");
@@ -26,14 +32,8 @@ export class DashboardLoggerElement extends HTMLCanvasElement {
         new LoggerController(this);
     }
 
-    clearText() {
+    private clearText() {
         this.textarea.innerHTML = "";
-    }
-
-    public writeToScreen(message: string) {
-        let now = new Date();
-        this.textarea.innerHTML = this.textarea.innerHTML + now.toLocaleTimeString() + " : " + message;
-        this.textarea.scrollTop = this.textarea.scrollHeight;
     }
 }
 
@@ -44,7 +44,7 @@ class LoggerController implements DashboardWebSocketConnectionListener {
 
     private view: DashboardLoggerElement;
 
-    constructor(view : DashboardLoggerElement) {
+    constructor(view: DashboardLoggerElement) {
         this.view = view;
         theWsApi.addConnectionListener(this);
     }
@@ -58,15 +58,15 @@ class LoggerController implements DashboardWebSocketConnectionListener {
     }
 
     public onWsMessage(evt: MessageEvent) {
-        this.view.writeToScreen("response: " + evt.data + '\n');
+        this.view.writeToScreen("response: " + evt.data + "\n");
     }
 
     public onWsError(evt: Event) {
-        this.view.writeToScreen('error: ' + evt.returnValue + '\n');
+        this.view.writeToScreen("error: " + evt.returnValue + "\n");
     }
 }
 
 
 export function registerDashboardLoggerElement() {
-    document.registerElement('dashboard-logger', DashboardLoggerElement);
+    document.registerElement("dashboard-logger", DashboardLoggerElement);
 }

@@ -40,17 +40,19 @@ L'objectif de ce github est de creer une application opensource de domotique tr�
 - www:
 	- Page Web du dashboard
 	- Exploiter la remonter des données de la base de données
-	- Intégrer des graphiques style http://www.highcharts.com/demo/dynamic-update ou Charts.js.org
+	- Intégrer des graphiques style http://www.highcharts.com/demo/dynamic-update ou http://chartjs.org
 
 ### Prerequis
 
 #### Installation
 
 
-1 - Install nodejs
-2 - npm install webpack -g
-3 - cd repository
-4 - npm init
+- Install nodejs
+- npm install -g typescript
+- npm install -g webpack
+- npm install -g tslint
+- cd repository
+- npm update
 
 You can install SimpleWebSocketServer by running the following command...
 sudo pip install git+https://github.com/dpallot/simple-websocket-server.git

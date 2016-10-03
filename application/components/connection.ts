@@ -1,17 +1,31 @@
-import { DashboardWebSocketConnectionListener, DashboardWebSocketApi, theWsApi } from '../wsApi';
+import { DashboardWebSocketConnectionListener, DashboardWebSocketApi, theWsApi } from "../wsApi";
 
 enum State { CONNECTED = 1, DISCONNECTED };
 
 class DashboardConnectionElement extends HTMLDivElement {
-    controller: ConnectionController;
-    btnConnect: HTMLButtonElement;
-    state: State;
+    private controller: ConnectionController;
+    private btnConnect: HTMLButtonElement;
+    private state: State;
 
-    createdCallback(): void {
+    public setController(controller: ConnectionController) {
+        this.controller = controller;
+    }
+
+    public setStateConnected() {
+        this.state = State.CONNECTED;
+        this.btnConnect.value = "Disconnect";
+    }
+
+    public setStateDisconnected() {
+        this.state = State.DISCONNECTED;
+        this.btnConnect.value = "Connect";
+    }
+
+    protected createdCallback(): void {
         console.log("DashboardConnectionElement.createdCallback()");
 
         this.btnConnect = document.createElement("input");
-        this.btnConnect.type = "button"
+        this.btnConnect.type = "button";
         this.appendChild(this.btnConnect);
 
         this.state = State.DISCONNECTED;
@@ -21,25 +35,15 @@ class DashboardConnectionElement extends HTMLDivElement {
             switch (this.state) {
                 case State.CONNECTED: this.controller.disconnect(); break;
                 case State.DISCONNECTED: this.controller.connect(); break;
+                default: break;
             }
         });
 
         this.setStateDisconnected();
     }
 
-    attachedCallback(): void {
+    protected attachedCallback(): void {
         console.log("DashboardConnectionElement.attachedCallback()");
-    }
-
-
-    public setStateConnected() {
-        this.state = State.CONNECTED;
-        this.btnConnect.value = "Disconnect"
-    }
-
-    public setStateDisconnected() {
-        this.state = State.DISCONNECTED;
-        this.btnConnect.value = "Connect"
     }
 }
 
@@ -52,7 +56,7 @@ export class ConnectionController implements DashboardWebSocketConnectionListene
 
     constructor(view: DashboardConnectionElement) {
         this.view = view;
-        this.view.controller = this;
+        this.view.setController(this);
 
         theWsApi.addConnectionListener(this);
     }
@@ -82,5 +86,5 @@ export class ConnectionController implements DashboardWebSocketConnectionListene
 }
 
 export function registerDashboardConnectionElement() {
-    document.registerElement('dashboard-connection', DashboardConnectionElement);
+    document.registerElement("dashboard-connection", DashboardConnectionElement);
 }

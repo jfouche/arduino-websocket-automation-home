@@ -1,16 +1,20 @@
 /// <reference path="../typings/webcomponents.d.ts" />
 
-import { DashboardWebSocketTemperatureListener, theWsApi } from '../wsApi';
-import { MyLineChart } from './dashboardChart'
+import { DashboardWebSocketTemperatureListener, theWsApi } from "../wsApi";
+import { MyLineChart } from "./dashboardChart";
 
 class TemperatureChartElement extends HTMLElement {
-    chart: MyLineChart;
+    private chart: MyLineChart;
 
     constructor() {
         super();
     }
 
-    createdCallback(): void {
+    public add(temperature: number, time: string) {
+        this.chart.add(temperature, time);
+    }
+
+    protected createdCallback(): void {
         console.log("TemperatureChartElement.createdCallback()");
         let canvas = document.createElement("canvas");
         canvas.width = 600;
@@ -35,11 +39,10 @@ class TemperatureController implements DashboardWebSocketTemperatureListener {
 
     public onTemperature(temperature: number, time: number) {
         let d = new Date(time);
-        this.view.chart.add(temperature, d.toTimeString());
+        this.view.add(temperature, d.toTimeString());
     }
 }
 
-export function registerTemperatureChartElement()
-{
-    document.registerElement('dashboard-temperature', TemperatureChartElement);
+export function registerTemperatureChartElement() {
+    document.registerElement("dashboard-temperature", TemperatureChartElement);
 }

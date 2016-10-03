@@ -8,8 +8,7 @@
         "removeComments": true,
         "preserveConstEnums": true
     },
-    "files": [
-        "application/dashboard.ts",
-        "application/wsapi.ts"
+    "include": [
+        "application/**/*"
     ]
 }

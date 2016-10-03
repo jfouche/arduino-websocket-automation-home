@@ -9,7 +9,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "directories": {
-    "test": "tests"
+    "test": "test"
   },
   "dependencies": {
     "ts-loader": "^0.8.2",
