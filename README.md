@@ -46,7 +46,8 @@ L'objectif de ce github est de creer une application opensource de domotique tr√
 
 #### Installation
 
-
+- Install python 3.5
+- pip install websocket-client
 - Install nodejs
 - npm install -g typescript
 - npm install -g webpack

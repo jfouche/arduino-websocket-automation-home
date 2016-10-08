@@ -1,1 +1,1 @@
-c:\python35\python.exe simu.py
+python.exe simu.py

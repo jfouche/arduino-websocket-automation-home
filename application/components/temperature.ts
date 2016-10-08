@@ -1,10 +1,12 @@
 /// <reference path="../typings/webcomponents.d.ts" />
+/// <reference path="../typings/require.d.ts" />
 
 import { DashboardWebSocketTemperatureListener, theWsApi } from "../wsApi";
 import { MyLineChart } from "./dashboardChart";
 
-class TemperatureChartElement extends HTMLElement {
+class TemperatureChartElement extends HTMLDivElement {
     private chart: MyLineChart;
+    private controller: TemperatureController;
 
     constructor() {
         super();
@@ -21,7 +23,7 @@ class TemperatureChartElement extends HTMLElement {
         canvas.height = 400;
         this.appendChild(canvas);
         this.chart = new MyLineChart(canvas, this.title);
-        new TemperatureController(this);
+        this.controller = new TemperatureController(this);
     }
 }
 

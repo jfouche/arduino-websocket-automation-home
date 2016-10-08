@@ -1,1 +1,1 @@
-c:\python35\python.exe server.py
+python.exe server.py
