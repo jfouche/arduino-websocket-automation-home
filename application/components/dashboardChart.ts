@@ -4,9 +4,10 @@
  * MyLineChart
  */
 export class MyLineChart {
-    private chart: Chart;
-    private data: LineChartData;
-    private dataset: LineChartDataset;
+    protected chart: Chart;
+    protected data: LineChartData;
+    protected dataset: LineChartDataset;
+    protected maxItemToShow: number = 20;
 
     constructor(canvas: HTMLCanvasElement, label: string) {
         this.dataset = {
@@ -26,6 +27,10 @@ export class MyLineChart {
     }
 
     public add(value: number, label: string) {
+        if (this.dataset.data.length >= this.maxItemToShow) {
+            this.dataset.data.shift();
+            this.data.labels.shift();
+        }
         this.dataset.data.push(value);
         this.data.labels.push(label);
         this.update();

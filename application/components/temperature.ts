@@ -6,7 +6,16 @@ import { MyLineChart } from "./dashboardChart";
 class TemperatureChart extends MyLineChart {
 
     protected options(): ChartOptions {
-        return { scales: { yAxes: [{ ticks: { suggestedMin: 0.0, suggestedMax: 25.0 } }] } };
+        return {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        suggestedMin: 0.0,
+                        suggestedMax: 25.0,
+                    },
+                }],
+            },
+        };
     }
 }
 

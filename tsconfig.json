@@ -5,7 +5,7 @@
         "module": "commonjs",
         "noImplicitAny": true,
         "target": "es5",
-        "removeComments": true,
+        "removeComments": false,
         "preserveConstEnums": true
     },
     "include": [
