@@ -2,8 +2,12 @@ import { DashboardWebSocketConnectionListener, DashboardWebSocketApi, theWsApi }
 
 enum State { CONNECTED = 1, DISCONNECTED };
 
+/**
+ * DashboardConnectionElement
+ */
 class DashboardConnectionElement extends HTMLDivElement {
     private controller: ConnectionController;
+    private inputUrl: HTMLInputElement;
     private btnConnect: HTMLButtonElement;
     private state: State;
 
@@ -13,16 +17,30 @@ class DashboardConnectionElement extends HTMLDivElement {
 
     public setStateConnected() {
         this.state = State.CONNECTED;
+        this.inputUrl.hidden = true;
         this.btnConnect.value = "Disconnect";
     }
 
     public setStateDisconnected() {
         this.state = State.DISCONNECTED;
+        this.inputUrl.hidden = false;
         this.btnConnect.value = "Connect";
+    }
+
+    public set url(uri: string) {
+        this.inputUrl.value = uri;
+    }
+
+    public get url(): string {
+        return this.inputUrl.value;
     }
 
     protected createdCallback(): void {
         console.log("DashboardConnectionElement.createdCallback()");
+
+        this.inputUrl = document.createElement("input");
+        this.inputUrl.type = "text";
+        this.appendChild(this.inputUrl);
 
         this.btnConnect = document.createElement("input");
         this.btnConnect.type = "button";
@@ -31,19 +49,28 @@ class DashboardConnectionElement extends HTMLDivElement {
         this.state = State.DISCONNECTED;
         this.controller = new ConnectionController(this);
 
-        this.btnConnect.addEventListener("click", (e) => {
-            switch (this.state) {
-                case State.CONNECTED: this.controller.disconnect(); break;
-                case State.DISCONNECTED: this.controller.connect(); break;
-                default: break;
-            }
-        });
+        this.btnConnect.addEventListener("click", (e) => { this.connect(); });
 
         this.setStateDisconnected();
     }
 
     protected attachedCallback(): void {
         console.log("DashboardConnectionElement.attachedCallback()");
+    }
+
+    private connect() {
+        switch (this.state) {
+            case State.CONNECTED:
+                this.controller.disconnect();
+                break;
+
+            case State.DISCONNECTED:
+                if (this.inputUrl.value) {
+                    this.controller.connect();
+                };
+                break;
+            default: break;
+        }
     }
 }
 
@@ -58,11 +85,13 @@ export class ConnectionController implements DashboardWebSocketConnectionListene
         this.view = view;
         this.view.setController(this);
 
+        this.view.url = "ws://localhost:8000/";
+
         theWsApi.addConnectionListener(this);
     }
 
     public connect() {
-        theWsApi.connect("ws://localhost:8000/");
+        theWsApi.connect(this.view.url);
     }
 
     public disconnect() {
