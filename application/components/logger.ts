@@ -1,10 +1,11 @@
 /// <reference path="../typings/webcomponents.d.ts" />
 
-import { DashboardWebSocketConnectionListener, DashboardWebSocketApi, theWsApi } from "../wsApi";
+import { DashboardWebSocketConnectionListener, theWsApi } from "../wsApi";
 
 export class DashboardLoggerElement extends HTMLCanvasElement {
 
     private textarea: HTMLTextAreaElement;
+    private controller: LoggerController;
 
     constructor() {
         super();
@@ -29,7 +30,7 @@ export class DashboardLoggerElement extends HTMLCanvasElement {
             this.clearText();
         });
 
-        new LoggerController(this);
+        this.controller = new LoggerController(this);
     }
 
     private clearText() {

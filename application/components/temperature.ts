@@ -1,11 +1,17 @@
 /// <reference path="../typings/webcomponents.d.ts" />
-/// <reference path="../typings/require.d.ts" />
 
 import { DashboardWebSocketTemperatureListener, theWsApi } from "../wsApi";
 import { MyLineChart } from "./dashboardChart";
 
+class TemperatureChart extends MyLineChart {
+
+    protected options(): ChartOptions {
+        return { scales: { yAxes: [{ ticks: { suggestedMin: 0.0, suggestedMax: 25.0 } }] } };
+    }
+}
+
 class TemperatureChartElement extends HTMLDivElement {
-    private chart: MyLineChart;
+    private chart: TemperatureChart;
     private controller: TemperatureController;
 
     constructor() {
@@ -19,10 +25,8 @@ class TemperatureChartElement extends HTMLDivElement {
     protected createdCallback(): void {
         console.log("TemperatureChartElement.createdCallback()");
         let canvas = document.createElement("canvas");
-        canvas.width = 600;
-        canvas.height = 400;
         this.appendChild(canvas);
-        this.chart = new MyLineChart(canvas, this.title);
+        this.chart = new TemperatureChart(canvas, this.title);
         this.controller = new TemperatureController(this);
     }
 }

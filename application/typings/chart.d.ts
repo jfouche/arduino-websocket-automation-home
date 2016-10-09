@@ -11,6 +11,50 @@ interface LineChartData {
     datasets: LineChartDataset[];
 }
 
+interface ChartTitleConfiguration {
+    display?: boolean;
+    text?: string;
+}
+
+interface ChartLegendLabelConfiguration {
+    boxWidth?: number;
+}
+
+interface ChartLegendConfiguration {
+    display?: boolean;
+    position?: "top" | "left" | "bottom" | "right";
+    fullWidth?: boolean;
+    labels: ChartLegendLabelConfiguration;
+}
+
+interface ChartScaleConfiguration {
+    type?: "category" | "linear" | "logarithmic" | "time" | "radialLinear";
+    display?: boolean;
+    position?: "top" | "left" | "bottom" | "right";
+    id?: string;
+    ticks?: {
+        autoSkip?: boolean;
+        suggestedMin?: number;
+        suggestedMax?: number;
+    }
+}
+
+interface ChartOptions {
+    title?: ChartTitleConfiguration;
+    legend?: ChartLegendConfiguration;
+    scales?: {
+        yAxes?: ChartScaleConfiguration[];
+        xAxes?: ChartScaleConfiguration[]
+    };
+    responsive?: boolean;
+    responsiveAnimationDuration?: number;
+    maintainAspectRatio?: boolean;
+    events?: string[];
+    onClick?: () => void,
+    legendCallback?: () => void,
+    onResize?: () => void
+}
+
 interface ChartConfig {
     type: string;
 }
@@ -18,6 +62,7 @@ interface ChartConfig {
 interface LineChartConfig extends ChartConfig {
     type: "line";
     data: LineChartData;
+    options?: ChartOptions;
 }
 
 
@@ -27,4 +72,8 @@ interface Chart {
 
 declare var Chart: {
     new (context: any, config: ChartConfig): Chart;
+
+    defaults: {
+        global: ChartOptions;
+    };
 };

@@ -11,7 +11,7 @@ export class MyLineChart {
     constructor(canvas: HTMLCanvasElement, label: string) {
         this.dataset = {
             data: [],
-            label: label,
+            label,
         };
         this.data = {
             datasets: [this.dataset],
@@ -20,6 +20,7 @@ export class MyLineChart {
         let config: LineChartConfig = {
             data: this.data,
             type: "line",
+            options: this.options(),
         };
         this.chart = new Chart(canvas.getContext("2d"), config);
     }
@@ -32,5 +33,9 @@ export class MyLineChart {
 
     public update() {
         this.chart.update();
+    }
+
+    protected options(): ChartOptions {
+        return {};
     }
 }
