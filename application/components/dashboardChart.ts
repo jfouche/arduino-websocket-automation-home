@@ -13,6 +13,8 @@ export class MyLineChart {
         this.dataset = {
             data: [],
             label,
+            backgroundColor: "#FF8080",
+            borderColor: "#FF0000",
         };
         this.data = {
             datasets: [this.dataset],

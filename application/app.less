@@ -1,5 +1,10 @@
 // out: ../www/app.css, compress: false, sourceMap: false
 
+@sensor-background: #222;
+@sensor-width: 600px;
+@sensor-height: 300px;
+
+
 body {
     background: black;
 }
@@ -21,9 +26,9 @@ body {
 
 .sensor {
   float: left;
-  background: #222;
-  width: 600px;
-  height: 300px;
+  background: @sensor-background;
+  width: @sensor-width;
+  height: @sensor-height;
   margin: 1em;
   padding: 1em;
   border: 1px solid #ccc;
@@ -37,12 +42,21 @@ dashboard-temperature {
 dashboard-logger {
     display: block;
     width: 100%;
+    position: relative;
 
-    textarea {
-        width: 100%;
-        height:100%;
-        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-        box-sizing: border-box;         /* Opera/IE 8+ */
+    input {
+        display: block;
+        position: absolute;
+        top: 5px;
+        right: 5px;
+    }
+
+    div {
+        background-color: lighten(@sensor-background, 20%);
+        height:@sensor-height;
+        overflow: auto;
+        font-family: monospace;
+        font-size: 10px;
+        color: wheat;
     }
 }

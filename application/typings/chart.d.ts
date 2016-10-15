@@ -4,6 +4,8 @@
 interface LineChartDataset {
     label: string;
     data: number[];
+    backgroundColor: string;
+    borderColor: string;
 }
 
 interface LineChartData {
