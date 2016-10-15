@@ -7,7 +7,7 @@ export class MyLineChart {
     protected chart: Chart;
     protected data: LineChartData;
     protected dataset: LineChartDataset;
-    protected maxItemToShow: number = 20;
+    protected maxItemToShow: number = 10;
 
     constructor(canvas: HTMLCanvasElement, label: string) {
         this.dataset = {
