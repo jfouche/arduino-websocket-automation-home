@@ -52,9 +52,8 @@ class TemperatureController implements DashboardWebSocketTemperatureListener {
         theWsApi.addTemperatureListener(this);
     }
 
-    public onTemperature(temperature: number, time: number) {
-        let d = new Date(time);
-        this.view.add(temperature, d.toTimeString());
+    public onTemperature(temperature: number, time: Date) {
+        this.view.add(temperature, time.toTimeString().split(" ")[0]);
     }
 }
 

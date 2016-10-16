@@ -6,7 +6,7 @@ export interface DashboardWebSocketConnectionListener {
 }
 
 export interface DashboardWebSocketTemperatureListener {
-    onTemperature(temperature: number, time: number): void;
+    onTemperature(temperature: number, time: Date): void;
 }
 
 /**
@@ -16,9 +16,6 @@ export class DashboardWebSocketApi {
     private ws: WebSocket = null;
     private connectionListeners: Array<DashboardWebSocketConnectionListener> = [];
     private temperatureListeners: Array<DashboardWebSocketTemperatureListener> = [];
-
-    constructor() {
-    }
 
     public connect(url: string) {
         this.ws = new WebSocket(url);
@@ -41,14 +38,15 @@ export class DashboardWebSocketApi {
     }
 
     public setTemperature(t: number) {
-        let obj = { "msg": "setTemperature", "temperature": t };
+        let obj = { msg: "setTemperature", temperature: t };
         let frame: string = JSON.stringify(obj);
         this.send(frame);
     }
 
     private sendTemperature(temperature: number, time: number) {
+        let d = new Date(time * 1000);
         this.temperatureListeners.forEach((l) => {
-            l.onTemperature(temperature, time);
+            l.onTemperature(temperature, d);
         });
     }
 
