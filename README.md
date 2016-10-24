@@ -18,14 +18,14 @@ L'objectif de ce github est de creer une application opensource de domotique tr√
                                                       ||
 |-----------|                                   |-----------|        |-----------|
 |  Arduino  |                                   |  Python   |        | Data Base |
-|  Client   |<=========Ethernet/Wireless=======>|  Server   |<======>|  SQLlite  |
+|  sensors  |<=========Ethernet/Wireless=======>|  Server   |<======>|  SQLlite  |
 | Websocket |            (WebSocket)            | Websocket |        |-----------|
 |-----------|                                   |-----------|
 ```
 
 ### ROADMAP
 
-- Client:
+- Client/sensors:
 	- Ecriture du client (C/C++): Regroupe essentiellement des capteurs: Temp√©rature, Pression, Niveau, UV, Hall
 	- G√©rer la possibilit√© d'envoyer des commandes au client: Pilotage relay, moteur
 
@@ -47,10 +47,10 @@ L'objectif de ce github est de creer une application opensource de domotique tr√
 #### Installation
 
 
-1 - Install nodejs
-2 - npm install webpack -g
-3 - cd repository
-4 - npm init
+- Install nodejs
+- npm install webpack -g
+- cd repository
+- npm init
 
 You can install SimpleWebSocketServer by running the following command...
 sudo pip install git+https://github.com/dpallot/simple-websocket-server.git
