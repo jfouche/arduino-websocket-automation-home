@@ -18,6 +18,7 @@ Library : https://github.com/djsb/arduino-websocketclient
 
 // Define a maximum framelength to 64 bytes. Default is 256. Don't Work !!! 
 #define MAX_FRAME_LENGTH 256
+#define CALLBACK_FUNCTIONS 1
 
 // Debug
 #define DEBUG  1
@@ -88,7 +89,7 @@ void setup() {
       // Hang on failure
     }
   }
-
+  
   // Define path and host for Handshaking with the server
   websocket.path = PATH;
   websocket.host = HOSTNAME;
@@ -106,12 +107,14 @@ void setup() {
       // Hang on failure
     }
   }
-}
 
+}
 
 void loop() {
  
- /*
+  char result[20];
+  String wsMessage;
+  
   sensor_cumulus.requestTemperatures();
   sensor_out.requestTemperatures();
 
@@ -124,19 +127,15 @@ void loop() {
   #endif
   
   //assemble the websocket outgoing message
-  String wsMessage = String(tempa) + "," + String(tempb);
-
+  wsMessage = "temperature," + String(tempa, DEC);
+  wsMessage.toCharArray(result,18);
+  
   #ifdef DEBUG
     Serial.println(wsMessage);
   #endif
-
-  client.listen();
-*/
  
-  String data;
-
   if (client.connected()) {
-    data = websocket.getData();
+    String data = websocket.getData();
     if (data.length() > 0) {
     #ifdef DEBUG
       Serial.print("Received data: ");
@@ -145,9 +144,9 @@ void loop() {
     }
 
     #ifdef DEBUG
-      Serial.println(F("")); Serial.println(F("Sending Data"));
+      Serial.println(F("Sending Data"));
     #endif
-    websocket.sendData("echo test");
+    websocket.sendData(result);
   } else {
     #ifdef DEBUG
       Serial.println("Client disconnected.");
@@ -157,6 +156,5 @@ void loop() {
     }
   }
 
-  delay(3000);  // wait to fully let the client disconnect
-
+  delay(3000);
 }

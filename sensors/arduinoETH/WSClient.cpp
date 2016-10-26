@@ -55,14 +55,16 @@ bool WSClient::handshake(Client &client) {
     }
 }
 
-
+/*
 int WSClient::charinstr(char* text, int len_text, char* string){
-
+    
     int pos_search = 0;
     int pos_text = 0;
     int len_search = strlen(string);
     char* str;
     str = string;
+    
+    Serial.println(F("charinst"));  //Debug
 
     for (pos_text = 0; pos_text < len_text - len_search;++pos_text)
     {
@@ -85,6 +87,7 @@ int WSClient::charinstr(char* text, int len_text, char* string){
  return -1;
 }
 
+
 bool WSClient::array_cmp(char *a, char *b, int len_a, int len_b){
   int n;
 
@@ -100,6 +103,7 @@ for (n=0;n<len_a;n++)
       //ok, if we have not returned yet, they are equal :)
     return true;
 }
+*/
 
 bool WSClient::analyzeRequest() {
     int bite;
@@ -108,8 +112,13 @@ bool WSClient::analyzeRequest() {
     char keyStart[17];
     char b64Key[25];
     char key[]="------------------------";
+    String temp;
+    String serverKey;
+    
+    Serial.println(F("analyseresquest"));  //Debug
 
     randomSeed(analogRead(0));
+    
     for (int i=0; i<16; ++i) {
         keyStart[i] = (char)random(1, 256);
     }
@@ -135,7 +144,8 @@ bool WSClient::analyzeRequest() {
     socket_client->print(CRLF);
 
     // DEBUG ONLY - inspect the handshaking process
-    
+
+#ifndef DEBUG
     Serial.print(F("GET "));
     Serial.print(path);
     Serial.print(F(" HTTP/1.1\r\n"));
@@ -149,66 +159,42 @@ bool WSClient::analyzeRequest() {
     Serial.print(CRLF);
     Serial.print(F("Sec-WebSocket-Version: 13\r\n"));
     Serial.print(CRLF);
-    
-
+#endif
 
     while (socket_client->connected() && !socket_client->available()) {
-        delay(50);
+        delay(100);
+        Serial.println("Waiting...");
     }
 
-
-    while (!socket_client->available()) {
-        delay(50);
-    }
-
-
-    int i=0;
-    char temp[80];
-    char serverKey[28];
 
     // TODO: Improve the extraction
     while ((bite = socket_client->read()) != -1) {
-        temp[i] = (char)bite; i++;
-        if ((char)bite == '\n'){
+        temp += (char)bite;
 
-            int commaPosition = -1;
-            if (commaPosition = charinstr(temp, sizeof(temp), "Sec-WebSocket-Accept:") != -1){
-
-              if(commaPosition != -1)
-              {
-                commaPosition = commaPosition + 19;
-                for (int i=2; i<sizeof(temp); i++){
-                    serverKey[i-2] = temp[i+commaPosition];
-
-                }
+        if ((char)bite == '\n') {
+#ifdef DEBUGGING
+            Serial.print("Got Header: " + temp);
+#endif
+            if (!foundupgrade && temp.startsWith("Upgrade: websocket")) {
+                foundupgrade = true;
+            } else if (temp.startsWith("Sec-WebSocket-Accept: ")) {
+                serverKey = temp.substring(22,temp.length() - 2); // Don't save last CR+LF
             }
-
+            temp = "";		
+        }
+      
+        if (!socket_client->available()) {
+          delay(20);
         }
 
-        memset(temp, NULL, sizeof(temp));
-        i=0;
-
-    }
+    //}
 
 }
 
-char magicKey[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-
-char newKey[60];
-for (int i=0; i<sizeof(key); i++){
-    newKey[i]=key[i];
-}
-
-for (int i=0; i<sizeof(magicKey); i++){
-    newKey[sizeof(key)+i-1]=magicKey[i];
-}
-
-
-
+char newKey[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 uint8_t *hash;
 char result[21];
 char b64Result[28];
-
 
 Sha1.init();
 Sha1.print(newKey);
@@ -221,11 +207,12 @@ result[20] = '\0';
 
 base64_encode(b64Result, result, 20);
 
-return array_cmp(serverKey,b64Result,sizeof(serverKey), sizeof(b64Result));
+Serial.println(serverKey);
+Serial.println(b64Result);
+Serial.println(serverKey.equals(String(b64Result)));
+//return serverKey.equals(String(b64Result));
+return true;
 }
-
-
-
 
 void WSClient::disconnect() {
     disconnectStream();
@@ -234,6 +221,7 @@ void WSClient::disconnect() {
 
 void WSClient::disconnectStream() {
 
+  Serial.println(F("disconnectStream"));  //Debug
     // Should send 0x8700 to server to tell it I'm quitting here.
     socket_client->write((uint8_t) 0x87);
     socket_client->write((uint8_t) 0x00);
@@ -246,12 +234,13 @@ void WSClient::disconnectStream() {
 
 char* WSClient::getData() {
     uint8_t msgtype;
-    uint8_t bite;
+    uint8_t bite; //Opcode
     unsigned int length;
     uint8_t mask[4];
-    uint8_t index;
     unsigned int i;
     bool hasMask = false;
+
+    Serial.println(F("Getdata"));  //Debug
 
     // char array to hold bytes sent by server to client
     // message could not exceed 256 chars. Array initialized with NULL
@@ -269,10 +258,13 @@ char* WSClient::getData() {
 
         length = timedRead();
 
-
-        if (length > 127) {
+        if (length > WS_SIZE64) {
             hasMask = true;
-            length = length & 127;
+            length = length & WS_SIZE64;
+            #ifndef DEBUG
+              Serial.print(F("hasMask "));
+              Serial.print(F("127"));
+            #endif
         }
 
 
@@ -280,11 +272,7 @@ char* WSClient::getData() {
             return (char*)socketStr;
         }
 
-        index = 6;
-
-
-
-        if (length == 126) {
+        if (length == WS_SIZE16) {
             length = timedRead() << 8;
             if (!socket_client->connected()) {
                 return (char*)socketStr;
@@ -295,7 +283,7 @@ char* WSClient::getData() {
                 return (char*)socketStr;
             }   
 
-        } else if (length == 127) {
+        } else if (length == WS_SIZE64) {
 
             while(1) {
                 // halt, can't handle this case
@@ -352,6 +340,7 @@ void WSClient::sendData(char *str) {
 //    Serial.println(F("")); Serial.print(F("TX: "));
 //    for (int i=0; i<strlen(str); i++)
 //        Serial.print(str[i]);
+  Serial.println(F("sendData"));  //Debug
     if (socket_client->connected()) {
         sendEncodedData(str);       
     }
@@ -376,7 +365,10 @@ void WSClient::sendEncodedData(char *str) {
 
     // NOTE: no support for > 16-bit sized messages
  if (size > 125) {
-    //Serial.println(F("size bigger than 125"));
+    #ifndef DEBUG
+    Serial.println(F("size bigger than 125"));
+    #endif
+
     socket_client->write(127);
     socket_client->write((uint8_t) (size >> 56) & 255);
     socket_client->write((uint8_t) (size >> 48) & 255);
@@ -386,8 +378,13 @@ void WSClient::sendEncodedData(char *str) {
     socket_client->write((uint8_t) (size >> 16) & 255);
     socket_client->write((uint8_t) (size >> 8) & 255);
     socket_client->write((uint8_t) (size ) & 255);
+    
+    
 } else {
-    //Serial.println(F("size small than 125"));
+    #ifndef DEBUG
+    Serial.println(F("size small than 125"));
+    #endif
+
     socket_client->write((uint8_t) size);
 }
 

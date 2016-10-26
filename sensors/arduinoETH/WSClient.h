@@ -33,6 +33,20 @@
 
 #define SIZE(array) (sizeof(array) / sizeof(*array))
 
+// WebSocket protocol constants
+// First byte
+#define WS_FIN            0x80
+#define WS_OPCODE_TEXT    0x01
+#define WS_OPCODE_BINARY  0x02
+#define WS_OPCODE_CLOSE   0x08
+#define WS_OPCODE_PING    0x09
+#define WS_OPCODE_PONG    0x0a
+// Second byte
+#define WS_MASK           0x80
+#define WS_SIZE16         126
+#define WS_SIZE64         127
+
+
 	class WSClient {
 	public:
 
