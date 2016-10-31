@@ -247,11 +247,6 @@ char* WSClient::getData() {
 }
 
 void WSClient::sendData(char *str) {
-  //    Serial.println(F("")); Serial.print(F("TX: "));
-  //    for (int i=0; i<strlen(str); i++) {
-  //      Serial.print(str[i]);
-  //    }
-
   if (socket_client->connected()) {
     sendEncodedData(str);
   }

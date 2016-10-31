@@ -63,23 +63,9 @@ void setup() {
 
   delay(100);
 
-/*  // Connect and test websocket server connectivity
-  if (client.connect(HOSTNAME, PORT)) {
-    Serial.println("Connected");
-  } else {
-    Serial.println("Connection failed.");
-  }
-*/
-
   // Define path and host for Handshaking with the server
   websocket.path = PATH;
   websocket.host = HOSTNAME;
-
-/*  if (websocket.handshake(client)) {
-    Serial.println("Handshake successful");
-  } else {
-    Serial.println("Handshake failed.");
-  }*/
 }
 
 void loop() {
@@ -119,7 +105,9 @@ void loop() {
   } else {
     Serial.println("Connection failed.");
   }
+
+  delay(1000);
   websocket.disconnect();
   
-  delay(10000);
+  delay(9000);
 }
