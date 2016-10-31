@@ -1,13 +1,13 @@
 /*
-Desc: Affiche le différentiel de température entre deux sondes et pilote la chaudière.
-Auteur: zasquash
+  Desc: Affiche le différentiel de température entre deux sondes et pilote la chaudière.
+  Auteur: zasquash
 
-Matériel:
-Sonde: 2 x DS18B20
-Arduino Ethernet PoE
-Relay 5v
+  Matériel:
+  Sonde: 2 x DS18B20
+  Arduino Ethernet PoE
+  Relay 5v
 
-Library : https://github.com/djsb/arduino-websocketclient
+  Library from : https://github.com/djsb/arduino-websocketclient
 */
 
 #include <SPI.h>
@@ -16,12 +16,8 @@ Library : https://github.com/djsb/arduino-websocketclient
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-// Define a maximum framelength to 64 bytes. Default is 256. Don't Work !!! 
+// Define a maximum framelength to 64 bytes. Default is 256. Don't Work !!!
 #define MAX_FRAME_LENGTH 256
-#define CALLBACK_FUNCTIONS 1
-
-// Debug
-#define DEBUG  1
 
 //PIN capteurs
 #define SENSORA 2
@@ -36,9 +32,7 @@ DallasTemperature sensor_out(&TMP_OUT);
 
 #define HOSTNAME   "192.168.1.1"            // Serveur distant
 #define PORT        8000                    // Port du serveur distant
-//#define HOSTNAME     "echo.websocket.org" // Serveur distant
-//#define PORT         80                   // Port du serveur distant
-#define PATH         "/"                    // Path
+#define PATH        "/"                     // Path
 
 // Ethernet Configuration
 byte mac[] = {0x52, 0x4F, 0x43, 0x4B, 0x45, 0x54};
@@ -54,17 +48,13 @@ WSClient websocket;
 
 void setup() {
 
-  #ifdef DEBUG  
-    Serial.begin(115200);
-  #endif
+  Serial.begin(115200);
 
   //Init Ethernet
   Ethernet.begin(mac, ip, subnet);
   //Ethernet.begin(mac, ip, subnet, myDNS, gateway);
-  #ifdef DEBUG
-    Serial.print("IP Arduino : ");
-    Serial.println(Ethernet.localIP());
-  #endif
+  Serial.print("IP Arduino : ");
+  Serial.println(Ethernet.localIP());
 
   delay(1000);
 
@@ -73,62 +63,63 @@ void setup() {
 
   delay(100);
 
+/*  // Connect and test websocket server connectivity
   if (client.connect(HOSTNAME, PORT)) {
-  #ifdef DEBUG  
-      Serial.print("Connected to ");
-      Serial.print(HOSTNAME);
-      Serial.print(":");
-      Serial.println(PORT);
-  #endif
+    Serial.println("Connected");
   } else {
     Serial.println("Connection failed.");
-  delay(10000);
   }
+*/
 
+  // Define path and host for Handshaking with the server
+  websocket.path = PATH;
+  websocket.host = HOSTNAME;
+
+/*  if (websocket.handshake(client)) {
+    Serial.println("Handshake successful");
+  } else {
+    Serial.println("Handshake failed.");
+  }*/
 }
 
 void loop() {
- 
+
   char chartmp[75];
   String wsMessage;
-  
+
   sensor_cumulus.requestTemperatures();
   sensor_out.requestTemperatures();
 
-  float tmpa = (sensor_cumulus.getTempCByIndex(0));  
+  float tmpa = (sensor_cumulus.getTempCByIndex(0));
   float tmpb = (sensor_out.getTempCByIndex(0));
-  
+
   //assemble the websocket outgoing message
-  wsMessage = "{setTemperature: {title: Chauffe eau, sensorIn: " + String(tmpa, 2) + ", sensorOut: " + String(tmpb, 2) + "}";
-  wsMessage.toCharArray(chartmp,75);
+  wsMessage = "{setTemperature: {title: Chauffe eau, sensorIn: " + String(tmpa, 2) + ", sensorOut: " + String(tmpb, 2) + "}}";
+  wsMessage.toCharArray(chartmp, 75);
+
+  if (client.connect(HOSTNAME, PORT)) {
+    Serial.println("Connected");
+
+    if (websocket.handshake(client)) {
+      Serial.println("Handshake successful");
+
+      String data = websocket.getData();
   
-      // Define path and host for Handshaking with the server
-      websocket.path = PATH;
-      websocket.host = HOSTNAME;
-    
-      if (websocket.handshake(client)) {
-        #ifdef DEBUG
-          Serial.println("Handshake successful");
-        #endif
-        
-        String data = websocket.getData();
-        if (data.length() > 0) {
-        #ifdef DEBUG
-          Serial.print("Received data: ");
-          Serial.println(data);
-        #endif
-        }
-
-#ifdef DEBUG
-        Serial.print("senddata => ");
-        Serial.println(chartmp);
-#endif
-
-        websocket.sendData(chartmp);
+      if (data.length() > 0) {
+         Serial.print("Received data: ");
+         Serial.println(data);
       }
-      else {
-        #ifdef DEBUG  
-          Serial.println("Handshake failed.");
-        #endif
-      }
+
+      websocket.sendData(chartmp);
+
+    } else {
+      Serial.println("Handshake failed.");
+    }
+ 
+  } else {
+    Serial.println("Connection failed.");
+  }
+  websocket.disconnect();
+  
+  delay(10000);
 }
