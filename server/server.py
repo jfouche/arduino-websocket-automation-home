@@ -5,8 +5,8 @@ import time
 import config
 
 
-# TODO : sortir les éléments liés à la création de la base de données dans un script python indépendant.
-# TODO : Definir une base de données complètes.
+# TODO : Create the database in another file script
+# TODO : define specification of database
 SQL_CREATE_TEMPERATURE = """
     CREATE TABLE IF NOT EXISTS temperatures (
         id integer primary key,
@@ -40,7 +40,7 @@ class DashboardWebSocketHandler(WebSocket):
     def handleClose(self):
         print(self.address, 'closed')
 
-	#TODO: définir une spec claire des objets JSON passé en paramètre et adapter le code du serveur en fonction
+	#TODO: Define a specification of object JSON
     def handleMessage(self):
         print('message :', self.data)
         obj = json.loads(self.data)
