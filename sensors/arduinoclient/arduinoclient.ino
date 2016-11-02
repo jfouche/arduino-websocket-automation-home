@@ -21,14 +21,11 @@
 
 //PIN capteurs
 #define SENSORA 2
-#define SENSORB 3
 
 //Définition des capteurs
 OneWire TMP_CUMULUS(SENSORA);
-OneWire TMP_OUT(SENSORB);
 
 DallasTemperature sensor_cumulus(&TMP_CUMULUS);
-DallasTemperature sensor_out(&TMP_OUT);
 
 #define HOSTNAME   "192.168.1.1"            // Serveur distant
 #define PORT        8000                    // Port du serveur distant
@@ -59,7 +56,6 @@ void setup() {
   delay(1000);
 
   sensor_cumulus.begin();
-  sensor_out.begin();
 
   delay(100);
 
@@ -70,18 +66,16 @@ void setup() {
 
 void loop() {
 
-  char chartmp[75];
+  char chartmp[56];
   String wsMessage;
 
   sensor_cumulus.requestTemperatures();
-  sensor_out.requestTemperatures();
 
-  float tmpa = (sensor_cumulus.getTempCByIndex(0));
-  float tmpb = (sensor_out.getTempCByIndex(0));
+  float temperature = (sensor_cumulus.getTempCByIndex(0));
 
   //assemble the websocket outgoing message
-  wsMessage = "{setTemperature: {title: Chauffe eau, sensorIn: " + String(tmpa, 2) + ", sensorOut: " + String(tmpb, 2) + "}}";
-  wsMessage.toCharArray(chartmp, 75);
+  wsMessage = "{setTemperature: {name: cumulus, temperature: " + String(temperature, 2) + "}}";
+  wsMessage.toCharArray(chartmp, 56);
 
   if (client.connect(HOSTNAME, PORT)) {
     Serial.println("Connected");
