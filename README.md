@@ -18,14 +18,14 @@ L'objectif de ce github est de creer une application opensource de domotique tr�
                                                       ||
 |-----------|                                   |-----------|        |-----------|
 |  Arduino  |                                   |  Python   |        | Data Base |
-|  Client   |<=========Ethernet/Wireless=======>|  Server   |<======>|  SQLlite  |
+|  sensors  |<=========Ethernet/Wireless=======>|  Server   |<======>|  SQLlite  |
 | Websocket |            (WebSocket)            | Websocket |        |-----------|
 |-----------|                                   |-----------|
 ```
 
 ### ROADMAP
 
-- Client:
+- Client/sensors:
 	- Ecriture du client (C/C++): Regroupe essentiellement des capteurs: Température, Pression, Niveau, UV, Hall
 	- Gérer la possibilité d'envoyer des commandes au client: Pilotage relay, moteur
 
@@ -69,6 +69,7 @@ Compiler avec l'IDE arduino 1.6.2 ou superieur.
 - https://github.com/djsb/arduino-websocketclient
 - https://github.com/adngdb/python-websocket-server/blob/master/websocketserver.py
 - https://github.com/dpallot/simple-websocket-server
+- https://github.com/brandenhall/Arduino-Websocket
 
 ---------------------
 The MIT License (MIT) https://opensource.org/licenses/MIT
