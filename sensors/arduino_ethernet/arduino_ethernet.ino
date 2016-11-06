@@ -15,6 +15,7 @@
 #include "WSClient.h"
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <ArduinoJson.h>
 
 // Define a maximum framelength to 64 bytes. Default is 256. Don't Work !!!
 #define MAX_FRAME_LENGTH 256
@@ -35,6 +36,7 @@ const String HOSTNAME = "ARDUINO_ETHERNET"; // Name arduino
 #define PORT        8000                    // Port du serveur distant
 #define PATH        "/"                     // Path
 #define TIMECYCLE   10                    // Time in ms
+#define BAUDRATE    115200                  //Serial speed
 
 // Ethernet Configuration
 byte mac[] = {0x52, 0x4F, 0x43, 0x4B, 0x45, 0x54};
@@ -81,7 +83,7 @@ void transmission(char *objJson) {
 
 void setup() {
 
-  Serial.begin(115200);
+  Serial.begin(BAUDRATE);
 
   //Init Ethernet
   Ethernet.begin(mac, ip, subnet);
@@ -98,22 +100,26 @@ void setup() {
   // Define path and host for Handshaking with the server
   websocket.path = PATH;
   websocket.host = IPSERVER;
+
 }
 
 void loop() {
 
-  char chartmp[67];
-  String wsMessage;
-
+  char Buff[70];
+  StaticJsonBuffer<200> jsonBufferTemp;
+  
   sensor_cumulus.requestTemperatures();
 
   float temperature = (sensor_cumulus.getTempCByIndex(0));
 
-  //assemble the websocket outgoing message
-  wsMessage = "{'setTemperature', location: '" + LOCATION + "', 'temperature': " + String(temperature, 2) + "}";
-  wsMessage.toCharArray(chartmp, 67);
+  JsonObject& jsonTemperature = jsonBufferTemp.createObject();
+  jsonTemperature["msg"] = "setTemperature";
+  jsonTemperature["location"] = LOCATION;
+  jsonTemperature["temperature"] = temperature;
 
-  transmission(chartmp);
+  jsonTemperature.printTo(Buff, sizeof(Buff));
+
+  transmission(Buff);
   
   delay(TIMECYCLE);
 }
