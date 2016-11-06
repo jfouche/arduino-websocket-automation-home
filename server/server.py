@@ -39,8 +39,11 @@ class DashboardWebSocketHandler(WebSocket):
     def handleClose(self):
         print(self.address, 'closed')
 
+<<<<<<< HEAD
 	#TODO: Define a specification of object JSON
 	#Example Json OBJ ==> { 'msg': 'setTemperature', 'location': 'CUMULUS', 'temperature': '18.13' }
+=======
+>>>>>>> 88fd997970041c5d03f6d190ff4adfed17cc7f81
     def handleMessage(self):
         print('message :', self.data)
         obj = json.loads(self.data)
