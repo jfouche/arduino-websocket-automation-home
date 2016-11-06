@@ -265,9 +265,9 @@ void WSClient::sendEncodedData(char *str) {
   int size = strlen(str);
 
   // TXT Opcode
-  //socket_client->write(WS_OPCODE_TEXT);
+  socket_client->write(WS_OPCODE_TEXT  | WS_FIN);
   // Binary Opcode
-  socket_client->write(WS_OPCODE_BINARY | WS_FIN);
+  //socket_client->write(WS_OPCODE_BINARY | WS_FIN);
 
   // NOTE: no support for > 16-bit sized messages
   if (size > 125) {

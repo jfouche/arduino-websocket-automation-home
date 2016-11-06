@@ -40,7 +40,6 @@ class DashboardWebSocketHandler(WebSocket):
     def handleClose(self):
         print(self.address, 'closed')
 
-	#TODO: Define a specification of object JSON
     def handleMessage(self):
         print('message :', self.data)
         obj = json.loads(self.data)
