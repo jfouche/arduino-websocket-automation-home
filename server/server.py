@@ -5,13 +5,12 @@ import time
 import config
 
 
-# TODO : Create the database in another file script
 # TODO : define specification of database
 SQL_CREATE_TEMPERATURE = """
     CREATE TABLE IF NOT EXISTS temperatures (
         id integer primary key,
         time integer,
-        temperature integer
+        temperature real
     )
 """
 
@@ -41,11 +40,12 @@ class DashboardWebSocketHandler(WebSocket):
         print(self.address, 'closed')
 
 	#TODO: Define a specification of object JSON
+	#Example Json OBJ ==> { 'msg': 'setTemperature', 'location': 'CUMULUS', 'temperature': '18.13' }
     def handleMessage(self):
         print('message :', self.data)
         obj = json.loads(self.data)
-        if not obj : return
-        msg = obj["msg"]
+        if not obj: return
+        msg = obj['msg']
         print('msg :', msg)
         if not msg: return
         methodName = "handle_" + msg
@@ -53,7 +53,7 @@ class DashboardWebSocketHandler(WebSocket):
             getattr(self, methodName)(obj)
 
     def handle_setTemperature(self, obj) :
-        temperature = int(obj["temperature"])
+        temperature = float(obj["temperature"])
         print('temperature', temperature)
         now = int(time.time())
         print('time', now)
