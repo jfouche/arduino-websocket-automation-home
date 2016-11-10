@@ -4,11 +4,11 @@ import sqlite3
 import time
 import config
 
-
 # TODO : define specification of database
 SQL_CREATE_TEMPERATURE = """
     CREATE TABLE IF NOT EXISTS temperatures (
         id integer primary key,
+	location text,
         time integer,
         temperature real
     )
@@ -23,9 +23,9 @@ class DashboardDatabase(object) :
         cursor.execute(SQL_CREATE_TEMPERATURE)
         self.db.commit()
 
-    def addTemperature(self, time, temperature):
+    def addTemperature(self, time, location, temperature):
         cursor = self.db.cursor()
-        cursor.execute("INSERT INTO temperatures values (NULL, ?, ?)", (time, temperature))
+        cursor.execute("INSERT INTO temperatures values (NULL, ?, ?, ?)", (time, location, temperature))
         self.db.commit()
 
 DB = DashboardDatabase("dashboard.db3")
@@ -39,8 +39,7 @@ class DashboardWebSocketHandler(WebSocket):
     def handleClose(self):
         print(self.address, 'closed')
 
-	#TODO: Define a specification of object JSON
-	#Example Json OBJ ==> { 'msg': 'setTemperature', 'location': 'CUMULUS', 'temperature': '18.13' }
+	# Example Json OBJ ==> { 'msg': 'setTemperature', 'location': 'CUMULUS', 'temperature': '18.13' }
     def handleMessage(self):
         print('message :', self.data)
         obj = json.loads(self.data)
@@ -52,13 +51,15 @@ class DashboardWebSocketHandler(WebSocket):
         if hasattr(self, methodName) :
             getattr(self, methodName)(obj)
 
-    def handle_setTemperature(self, obj) :
-        temperature = float(obj["temperature"])
+    def handle_setTemperature(self, obj):
+        temperature = float(obj['temperature'])
         print('temperature', temperature)
         now = int(time.time())
         print('time', now)
-        DB.addTemperature(now, temperature)
-        self.sendTemperature(temperature, now)
+        location = obj['location']
+        print('location', location)
+        DB.addTemperature(now, location, temperature)
+        self.sendTemperature(temperature, location, now)
 
     def sendTemperature(self, temperature, time):
         print('sendTemperature :', temperature)
