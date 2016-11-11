@@ -1,16 +1,16 @@
-/// <reference path="../typings/chart.d.ts" />
+/// <reference path="../typings/highcharts.d.ts" />
 
 /**
  * MyLineChart
  */
 export class MyLineChart {
-    protected chart: Chart;
-    protected data: LineChartData;
-    protected dataset: LineChartDataset;
+    protected chart: __Highcharts.ChartObject;
+    /*protected data: LineChartData;
+    protected dataset: LineChartDataset;*/
     protected maxItemToShow: number = 10;
 
-    constructor(canvas: HTMLCanvasElement, label: string) {
-        this.dataset = {
+    constructor(element: HTMLElement, label: string) {
+        /*this.dataset = {
             data: [],
             label,
             backgroundColor: "#FF8080",
@@ -24,25 +24,39 @@ export class MyLineChart {
             data: this.data,
             type: "line",
             options: this.options(),
-        };
-        this.chart = new Chart(canvas.getContext("2d"), config);
+        };*/
+        this.chart = Highcharts.chart(element, {
+            chart: {
+                type: "spline",
+                animation: true,
+                marginRight: 10,
+            },
+            title : {
+                text: label,
+            },
+            xAxis: {
+                type: "datetime",
+                tickPixelInterval: 150,
+            },
+            yAxis: {
+                title: {
+                    text: "Value",
+                },
+                plotLines: [{
+                    value: 0,
+                    width: 1,
+                    color: "#808080",
+                }],
+            },
+            series: [{
+                name: label,
+                data: [],
+            }],
+        });
     }
 
-    public add(value: number, label: string) {
-        if (this.dataset.data.length >= this.maxItemToShow) {
-            this.dataset.data.shift();
-            this.data.labels.shift();
-        }
-        this.dataset.data.push(value);
-        this.data.labels.push(label);
-        this.update();
-    }
-
-    public update() {
-        this.chart.update();
-    }
-
-    protected options(): ChartOptions {
-        return {};
+    public add(value: number, label: number) {
+        let shift =  (this.chart.series[0].data.length >= this.maxItemToShow)
+        this.chart.series[0].addPoint([label, value], true, shift);
     }
 }

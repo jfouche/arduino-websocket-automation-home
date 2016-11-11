@@ -3,6 +3,7 @@
 import { DashboardWebSocketTemperatureListener, theWsApi } from "../wsApi";
 import { MyLineChart } from "./dashboardChart";
 
+/*
 class TemperatureChart extends MyLineChart {
 
     protected options(): ChartOptions {
@@ -17,25 +18,23 @@ class TemperatureChart extends MyLineChart {
             },
         };
     }
-}
+}*/
 
 class TemperatureChartElement extends HTMLDivElement {
-    private chart: TemperatureChart;
+    private chart: MyLineChart;
     private controller: TemperatureController;
 
     constructor() {
         super();
     }
 
-    public add(temperature: number, time: string) {
+    public add(temperature: number, time: number) {
         this.chart.add(temperature, time);
     }
 
     protected createdCallback(): void {
         console.log("TemperatureChartElement.createdCallback()");
-        let canvas = document.createElement("canvas");
-        this.appendChild(canvas);
-        this.chart = new TemperatureChart(canvas, this.title);
+        this.chart = new MyLineChart(this, this.title);
         this.controller = new TemperatureController(this);
     }
 }
@@ -53,7 +52,7 @@ class TemperatureController implements DashboardWebSocketTemperatureListener {
     }
 
     public onTemperature(temperature: number, time: Date) {
-        this.view.add(temperature, time.toTimeString().split(" ")[0]);
+        this.view.add(temperature, time.getTime());
     }
 }
 
