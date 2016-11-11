@@ -33,6 +33,19 @@
 
 #define SIZE(array) (sizeof(array) / sizeof(*array))
 
+// WebSocket protocol constants
+#define WS_FIN            0x80
+#define WS_OPCODE_TEXT    0x01
+#define WS_OPCODE_BINARY  0x02
+#define WS_OPCODE_CLOSE   0x08
+#define WS_OPCODE_PING    0x09
+#define WS_OPCODE_PONG    0x0a
+
+//Mask
+#define WS_MASK           0x80
+#define WS_SIZE16         126
+#define WS_SIZE64         127
+
 	class WSClient {
 	public:
 
@@ -45,14 +58,11 @@
 
 	    void sendEncodedData(char *str);
 
-
 	private:
 	    Client *socket_client;
 	    bool analyzeRequest();
 	    void disconnectStream();    // Disconnect user gracefully.
 	    int timedRead();
-	    int charinstr(char* text, int size, char* string);
-	    bool array_cmp(char *a, char *b, int len_a, int len_b);
 	};
 
 #endif
