@@ -1,5 +1,5 @@
 import sqlite3
-connection = sqlite3.connect('../dashboard.db3')
+connection = sqlite3.connect('../database.db3')
 cursor = connection.cursor()
 cursor.execute('SELECT SQLITE_VERSION()')
 data = cursor.fetchone()    

@@ -7,10 +7,10 @@ import config
 # TODO : define specification of database
 SQL_CREATE_TEMPERATURE = """
     CREATE TABLE IF NOT EXISTS temperatures (
-        id integer primary key,
-	location text,
-        time integer,
-        temperature real
+        id INTEGER PRIMARY KEY NOT NULL,
+	location TEXT NOT NULL,
+        time NUMERIC NOT NULL,
+        temperature REAL
     )
 """
 
@@ -25,16 +25,17 @@ class DashboardDatabase(object) :
 
     def addTemperature(self, time, location, temperature):
         cursor = self.db.cursor()
-        cursor.execute("INSERT INTO temperatures values (NULL, ?, ?, ?)", (time, location, temperature))
+        cursor.execute("INSERT INTO temperatures(location, time, temperature) VALUES (?,?,?)", (location, time, temperature))
         self.db.commit()
 
-DB = DashboardDatabase("dashboard.db3")
+DB = DashboardDatabase("database.db3")
 
 # ============================================================================
 class DashboardWebSocketHandler(WebSocket):
 
     def handleConnected(self):
         print(self.address, 'connected')
+	#TODO: Add list of sensors connected
 
     def handleClose(self):
         print(self.address, 'closed')
@@ -44,7 +45,7 @@ class DashboardWebSocketHandler(WebSocket):
         print('message :', self.data)
         obj = json.loads(self.data)
         if not obj: return
-        msg = obj['msg']
+        msg = str(obj['msg'])
         print('msg :', msg)
         if not msg: return
         methodName = "handle_" + msg
@@ -56,14 +57,14 @@ class DashboardWebSocketHandler(WebSocket):
         print('temperature', temperature)
         now = int(time.time())
         print('time', now)
-        location = obj['location']
+        location = str(obj['location'])
         print('location', location)
         DB.addTemperature(now, location, temperature)
         self.sendTemperature(temperature, location, now)
 
-    def sendTemperature(self, temperature, time):
+    def sendTemperature(self, temperature, location, time):
         print('sendTemperature :', temperature)
-        obj = {'msg': 'temperature', 'temperature': temperature, 'time': time}
+        obj = {'msg': 'temperature', 'temperature': temperature, 'location': location, 'time': time}
         msg = json.dumps(obj)
         for fileno, connection in self.server.connections.items() :
             connection.sendMessage(msg)
