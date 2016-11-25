@@ -36,9 +36,9 @@ CREATE TABLE IF NOT EXISTS hygrometrie (
 """
 
 # ============================================================================
-class DashboardDatabase(object) :
+class Database(object) :
 
-    def __init__(self, dbname) :
+    def __init__(self, dbname):
         self.db = sqlite3.connect(dbname)
         cursor = self.db.cursor()
         cursor.execute(SQL_CREATE_MODULES)
@@ -56,10 +56,14 @@ class DashboardDatabase(object) :
 	cursor.execute("INSERT OR IGNORE INTO modules(address) VALUES (?)", [address])
         self.db.commit()
 
-DB = DashboardDatabase("database.db3")
+    def getTemperature(self, champ):
+        cursor = self.db.cursor()
+        cursor.execute("INSERT INTO temperatures(id_Module,temperature,time) SELECT ID, ?, ? FROM modules WHERE address=?", [temperature, time, address])
+
+DB = Database("database.db3")
 
 # ============================================================================
-class DashboardWebSocketHandler(WebSocket):
+class WebSocketHandler(WebSocket):
 
     def handleConnected(self):
 	DB.addModule(self.address[0])
@@ -86,16 +90,16 @@ class DashboardWebSocketHandler(WebSocket):
         now = int(time.time())
         print('time', now)
         DB.addTemperature(self.address[0], now, temperature)
-        self.sendTemperature(now, temperature)
+        #self.sendTemperature(now, temperature)
 
-    def sendTemperature(self, time, temperature):
-        print('sendTemperature :', temperature)
-        obj = {'msg': 'temperature', 'temperature': temperature, 'time': time}
-        msg = json.dumps(obj)
-        for fileno, connection in self.server.connections.items() :
-            connection.sendMessage(msg)
+#    def sendTemperature(self, time, temperature):
+#        print('sendTemperature :', temperature)
+#        obj = {'msg': 'temperature', 'temperature': temperature, 'time': time}
+#        msg = json.dumps(obj)
+#        for fileno, connection in self.server.connections.items() :
+#            connection.sendMessage(msg)
 
 # ============================================================================
 if __name__ == "__main__" : 
-    server = SimpleWebSocketServer(config.socketBind, config.socketPort, DashboardWebSocketHandler)
+    server = SimpleWebSocketServer(config.socketBind, config.socketPort, WebSocketHandler)
     server.serveforever()
