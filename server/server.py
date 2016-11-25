@@ -12,8 +12,8 @@ SQL_CREATE_MODULES = """
 CREATE TABLE IF NOT EXISTS modules (
 	ID		integer NOT NULL PRIMARY KEY AUTOINCREMENT,
 	address  	varchar(30) NOT NULL UNIQUE,
-	type		varchar(30) UNIQUE DEFAULT UNKNOWN,
-	location	varchar(30) UNIQUE DEFAULT UNKNOWN
+	type		varchar(30) DEFAULT UNKNOWN,
+	location	varchar(30) DEFAULT UNKNOWN
 )
 """
 
@@ -48,7 +48,7 @@ class DashboardDatabase(object) :
 
     def addTemperature(self, address, time, temperature):
         cursor = self.db.cursor()
-        cursor.execute("INSERT INTO temperatures(time, temperature) VALUES (?, ?)", (time, temperature))
+        cursor.execute("INSERT INTO temperatures(id_Module,temperature,time) SELECT ID, ?, ? FROM modules WHERE address=?", [temperature, time, address])
         self.db.commit()
 
     def addModule(self, address):
@@ -85,7 +85,7 @@ class DashboardWebSocketHandler(WebSocket):
         print('temperature', temperature)
         now = int(time.time())
         print('time', now)
-        DB.addTemperature(self.address, now, temperature)
+        DB.addTemperature(self.address[0], now, temperature)
         self.sendTemperature(now, temperature)
 
     def sendTemperature(self, time, temperature):
