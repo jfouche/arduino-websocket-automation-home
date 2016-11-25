@@ -30,12 +30,12 @@ DallasTemperature sensor_cumulus(&TMP_CUMULUS);
 
 /*################# Parameters #################*/
 
-//const String LOCATION = "CUMULUS";          // Emplacement du capteur arduino
+//const String LOCATION = "CUMULUS";        // Emplacement du capteur arduino
 const String HOSTNAME = "ARDUINO_ETHERNET"; // Name arduino
 #define IPSERVER   "192.168.100.245"        // Serveur distant
 #define PORT        8000                    // Port du serveur distant
 #define PATH        "/"                     // Path
-#define TIMECYCLE   10                    // Time in ms
+#define TIMECYCLE   1000                    // Time in ms
 #define BAUDRATE    115200                  //Serial speed
 
 // Ethernet Configuration
@@ -54,12 +54,12 @@ WSClient websocket;
 
 void transmission(char *objJson) {
 
-  if (client.connect(IPSERVER, PORT)) {
+/*  if (client.connect(IPSERVER, PORT)) {
     Serial.println("Connected");
 
     if (websocket.handshake(client)) {
       Serial.println("Handshake successful");
-
+*/
       String data = websocket.getData();
   
       if (data.length() > 0) {
@@ -69,7 +69,7 @@ void transmission(char *objJson) {
 
       websocket.sendData(objJson);
 
-    } else {
+/*    } else {
       Serial.println("Handshake failed.");
     }
  
@@ -78,7 +78,7 @@ void transmission(char *objJson) {
   }
 
   delay(500);
-  websocket.disconnect();
+  websocket.disconnect();*/
 }
 
 void setup() {
@@ -97,10 +97,23 @@ void setup() {
 
   delay(100);
 
+  //WebSocket Connexion
   // Define path and host for Handshaking with the server
   websocket.path = PATH;
   websocket.host = IPSERVER;
 
+  if (client.connect(IPSERVER, PORT)) {
+    Serial.println("Connected");
+
+    if (websocket.handshake(client)) {
+      Serial.println("Handshake successful");
+    } else {
+      Serial.println("Handshake failed.");
+    }
+ 
+  } else {
+    Serial.println("Connection failed.");
+  }
 }
 
 void loop() {
