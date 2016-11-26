@@ -16,6 +16,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <ArduinoJson.h>
+#include <avr/wdt.h>
 
 // Define a maximum framelength to 64 bytes. Default is 256. Don't Work !!!
 #define MAX_FRAME_LENGTH 256
@@ -52,33 +53,27 @@ EthernetClient client;
 // Websocket initialization
 WSClient websocket;
 
+//watchdog
+void reset_software(void) {
+  wdt_enable(WDTO_15MS);
+  for(;;);
+}
+
 void transmission(char *objJson) {
-
-/*  if (client.connect(IPSERVER, PORT)) {
-    Serial.println("Connected");
-
-    if (websocket.handshake(client)) {
-      Serial.println("Handshake successful");
-*/
-      String data = websocket.getData();
-  
-      if (data.length() > 0) {
-         Serial.print("Received data: ");
-         Serial.println(data);
-      }
-
-      websocket.sendData(objJson);
-
-/*    } else {
-      Serial.println("Handshake failed.");
-    }
- 
+  if (client.connected()) {
+    websocket.sendData(objJson); 
   } else {
-    Serial.println("Connection failed.");
+    reset_software();
   }
+}
 
-  delay(500);
-  websocket.disconnect();*/
+void receive() {
+  String data = websocket.getData();
+  
+  if (data.length() > 0) {
+    Serial.print("Received data: ");
+    Serial.println(data);
+  }
 }
 
 void setup() {
@@ -109,10 +104,12 @@ void setup() {
       Serial.println("Handshake successful");
     } else {
       Serial.println("Handshake failed.");
+      reset_software();
     }
  
   } else {
     Serial.println("Connection failed.");
+    reset_software();
   }
 }
 
@@ -133,6 +130,7 @@ void loop() {
   jsonTemperature.printTo(Buff, sizeof(Buff));
   Serial.println(Buff);
 
+  receive();
   transmission(Buff);
   
   delay(TIMECYCLE);
