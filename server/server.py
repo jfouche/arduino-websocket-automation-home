@@ -12,8 +12,9 @@ SQL_CREATE_MODULES = """
 CREATE TABLE IF NOT EXISTS modules (
 	ID		integer NOT NULL PRIMARY KEY AUTOINCREMENT,
 	address  	varchar(30) NOT NULL UNIQUE,
-	type		varchar(30) DEFAULT UNKNOWN,
-	location	varchar(30) DEFAULT UNKNOWN
+	sensor		varchar(30) DEFAULT UNKNOWN,
+	location	varchar(30) DEFAULT UNKNOWN,
+	status		varchar(15) NULL
 )
 """
 
@@ -51,14 +52,20 @@ class Database(object) :
         cursor.execute("INSERT INTO temperatures(id_Module,temperature,time) SELECT ID, ?, ? FROM modules WHERE address=?", [temperature, time, address])
         self.db.commit()
 
-    def addModule(self, address):
+    def addModule(self, address, sensor):
         cursor = self.db.cursor()
-	cursor.execute("INSERT OR IGNORE INTO modules(address) VALUES (?)", [address])
+	cursor.execute("INSERT OR IGNORE INTO modules(address, sensor, status) VALUES (?, ?, 'CONNECTED')", [address, sensor])
         self.db.commit()
 
-    def getTemperature(self, champ):
+    def updateModule(self, address, status):
         cursor = self.db.cursor()
-        cursor.execute("INSERT INTO temperatures(id_Module,temperature,time) SELECT ID, ?, ? FROM modules WHERE address=?", [temperature, time, address])
+	cursor.execute("UPDATE modules SET status=? WHERE address=?", [status, address])
+        self.db.commit()
+
+    def getAllTemperatures(self, address):
+	print('recupere temperature')
+        cursor = self.db.cursor()
+        temperatures = cursor.execute("SELECT temperature,time FROM temperatures INNER JOIN modules WHERE id_module=modules.id and address=?", [address])
 
 DB = Database("database.db3")
 
@@ -66,16 +73,20 @@ DB = Database("database.db3")
 class WebSocketHandler(WebSocket):
 
     def handleConnected(self):
-	DB.addModule(self.address[0])
 	print(self.address, 'connected')
+	DB.updateModule(self.address[0], 'CONNECTED')
 
     def handleClose(self):
         print(self.address, 'closed')
+	DB.updateModule(self.address[0], 'DISCONNECTED')
 
-	# Example Json OBJ ==> { 'msg': 'setTemperature', 'temperature': '18.13' }
+	# Request type Json OBJ ==> { 'msg': '<methode><request>', 'sensor': 'arduino' '<resquest>': '18.13' }
+	# Example { 'msg': 'setTemperature', 'sensor': 'arduino' 'temperature': '18.13' }
     def handleMessage(self):
         print('message :', self.data)
         obj = json.loads(self.data)
+	if obj['sensor']:
+		DB.addModule(self.address[0], obj['sensor'])
         if not obj: return
         msg = obj['msg']
         print('msg :', msg)
@@ -84,6 +95,7 @@ class WebSocketHandler(WebSocket):
         if hasattr(self, methodName) :
             getattr(self, methodName)(obj)
 
+	# JSON structure { 'msg': 'setTemperature', 'sensor': 'arduino' 'temperature': '18.13' }
     def handle_setTemperature(self, obj):
         temperature = float(obj['temperature'])
         print('temperature', temperature)
@@ -91,6 +103,12 @@ class WebSocketHandler(WebSocket):
         print('time', now)
         DB.addTemperature(self.address[0], now, temperature)
         #self.sendTemperature(now, temperature)
+
+	# Example Json OBJ ==> { 'msg': 'getTemperature', 'address': 'xxx.xxx.xxx.xxx' }
+    def handle_getTemperature(self, obj):
+        address = obj['address']
+        print('address', address)
+        DB.getAllTemperatures(self, address)
 
 #    def sendTemperature(self, time, temperature):
 #        print('sendTemperature :', temperature)
