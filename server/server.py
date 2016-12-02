@@ -37,7 +37,9 @@ CREATE TABLE IF NOT EXISTS hygrometrie (
 """
 
 # ============================================================================
-class Database(object) :
+
+
+class Database(object):
 
     def __init__(self, dbname):
         self.db = sqlite3.connect(dbname)
@@ -49,53 +51,67 @@ class Database(object) :
 
     def addTemperature(self, address, time, temperature):
         cursor = self.db.cursor()
-        cursor.execute("INSERT INTO temperatures(id_Module,temperature,time) SELECT ID, ?, ? FROM modules WHERE address=?", [temperature, time, address])
+        cursor.execute(
+            "INSERT INTO temperatures(id_Module,temperature,time) SELECT ID, ?, ? FROM modules WHERE address=?", [
+                temperature, time, address])
         self.db.commit()
 
     def addModule(self, address, sensor):
         cursor = self.db.cursor()
-	cursor.execute("INSERT OR IGNORE INTO modules(address, sensor, status) VALUES (?, ?, 'CONNECTED')", [address, sensor])
+        cursor.execute(
+            "INSERT OR IGNORE INTO modules(address, sensor, status) VALUES (?, ?, 'CONNECTED')", [
+                address, sensor])
         self.db.commit()
 
     def updateModule(self, address, status):
         cursor = self.db.cursor()
-	cursor.execute("UPDATE modules SET status=? WHERE address=?", [status, address])
+        cursor.execute(
+            "UPDATE modules SET status=? WHERE address=?", [
+                status, address])
         self.db.commit()
 
     def getAllTemperatures(self, address):
-	print('recupere temperature')
+        print('recupere temperature')
         cursor = self.db.cursor()
-        temperatures = cursor.execute("SELECT temperature,time FROM temperatures INNER JOIN modules WHERE id_module=modules.id and address=?", [address])
+        temperatures = cursor.execute(
+            "SELECT temperature,time FROM temperatures INNER JOIN modules WHERE id_module=modules.id and address=?",
+            [address])
 
 DB = Database("database.db3")
 
 # ============================================================================
+
+
 class WebSocketHandler(WebSocket):
 
     def handleConnected(self):
-	print(self.address, 'connected')
-	DB.updateModule(self.address[0], 'CONNECTED')
+        print(self.address, 'connected')
+        DB.updateModule(self.address[0], 'CONNECTED')
 
     def handleClose(self):
         print(self.address, 'closed')
-	DB.updateModule(self.address[0], 'DISCONNECTED')
+        DB.updateModule(self.address[0], 'DISCONNECTED')
 
-	# Request type Json OBJ ==> { 'msg': '<methode><request>', 'sensor': 'arduino' '<resquest>': '18.13' }
-	# Example { 'msg': 'setTemperature', 'sensor': 'arduino' 'temperature': '18.13' }
+        # Request type Json OBJ ==> { 'msg': '<methode><request>', 'sensor': 'arduino' '<resquest>': '18.13' }
+        # Example { 'msg': 'setTemperature', 'sensor': 'arduino' 'temperature':
+        # '18.13' }
     def handleMessage(self):
         print('message :', self.data)
         obj = json.loads(self.data)
-	if obj['sensor']:
-		DB.addModule(self.address[0], obj['sensor'])
-        if not obj: return
+        if obj['sensor']:
+            DB.addModule(self.address[0], obj['sensor'])
+        if not obj:
+            return
         msg = obj['msg']
         print('msg :', msg)
-        if not msg: return
+        if not msg:
+            return
         methodName = "handle_" + msg
-        if hasattr(self, methodName) :
+        if hasattr(self, methodName):
             getattr(self, methodName)(obj)
 
-	# JSON structure { 'msg': 'setTemperature', 'sensor': 'arduino' 'temperature': '18.13' }
+        # JSON structure { 'msg': 'setTemperature', 'sensor': 'arduino'
+        # 'temperature': '18.13' }
     def handle_setTemperature(self, obj):
         temperature = float(obj['temperature'])
         print('temperature', temperature)
@@ -104,7 +120,8 @@ class WebSocketHandler(WebSocket):
         DB.addTemperature(self.address[0], now, temperature)
         #self.sendTemperature(now, temperature)
 
-	# Example Json OBJ ==> { 'msg': 'getTemperature', 'address': 'xxx.xxx.xxx.xxx' }
+        # Example Json OBJ ==> { 'msg': 'getTemperature', 'address':
+        # 'xxx.xxx.xxx.xxx' }
     def handle_getTemperature(self, obj):
         address = obj['address']
         print('address', address)
@@ -118,6 +135,9 @@ class WebSocketHandler(WebSocket):
 #            connection.sendMessage(msg)
 
 # ============================================================================
-if __name__ == "__main__" : 
-    server = SimpleWebSocketServer(config.socketBind, config.socketPort, WebSocketHandler)
+if __name__ == "__main__":
+    server = SimpleWebSocketServer(
+        config.socketBind,
+        config.socketPort,
+        WebSocketHandler)
     server.serveforever()
