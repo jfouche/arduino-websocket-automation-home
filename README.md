@@ -1,6 +1,6 @@
-## Arduino Websocket Automation Home
+# Arduino Websocket Automation Home
 
-### Description
+## Description
 L'objectif de ce github est de creer une application opensource de domotique très simple. Elle regroupe des fonctionnalités:
 - Dashboard bootstrap: Permettra d'afficher les données avec une interface responsive design.
 - Un serveur: Ecrit en python, ce serveur récupère les données provenant d'un client et les inserts dans une base de donnée.
@@ -23,7 +23,30 @@ L'objectif de ce github est de creer une application opensource de domotique tr�
 |-----------|                                   |-----------|
 ```
 
-### ROADMAP
+### Database
+
+
+#### table modules
+| modules    |           |         |
+| ---------- |  -------- | ------: |
+| address    |  text     |         |
+| sensor     |  text     |         |
+| time       |  integer  |         |
+| location   |  text     |         |
+| status     |  text     |         |
+
+
+#### table temperatures
+| temperatures    |           |         |
+| ------------    |  -------- | ------: |
+| address         |  text     |         |
+| module_address  |  text     |   links to modules.address      |
+| time            |  integer  |         |
+| location        |  text     |         |
+| status          |  text     |         |
+
+
+## ROADMAP
 
 - Client/sensors:
 	- Ecriture du client (C/C++): Regroupe essentiellement des capteurs: Température, Pression, Niveau, UV, Hall
@@ -40,11 +63,11 @@ L'objectif de ce github est de creer une application opensource de domotique tr�
 - www:
 	- Page Web du dashboard
 	- Exploiter la remonter des données de la base de données
-	- Intégrer des graphiques style http://www.highcharts.com/demo/dynamic-update ou http://chartjs.org
+	- Intégrer des graphiques style <http://www.highcharts.com/demo/dynamic-update> ou <http://chartjs.org>
 
-### Prerequis
+## Prerequis
 
-#### Installation
+### Installation
 
 - Install python 3.5
 - pip install websocket-client
@@ -64,12 +87,12 @@ Installation via pip is suggested.
 Compiler avec l'IDE arduino 1.6.2 ou superieur.
 
 
-### Credit
+## Credit
 
-- https://github.com/djsb/arduino-websocketclient
-- https://github.com/adngdb/python-websocket-server/blob/master/websocketserver.py
-- https://github.com/dpallot/simple-websocket-server
-- https://github.com/brandenhall/Arduino-Websocket
+- <https://github.com/djsb/arduino-websocketclient>
+- <https://github.com/adngdb/python-websocket-server/blob/master/websocketserver.py>
+- <https://github.com/dpallot/simple-websocket-server>
+- <https://github.com/brandenhall/Arduino-Websocket>
 
 ---------------------
-The MIT License (MIT) https://opensource.org/licenses/MIT
+The MIT License (MIT) <https://opensource.org/licenses/MIT>

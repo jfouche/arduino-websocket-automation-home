@@ -23,7 +23,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "python server/server.py",
         "simu": "python sensors/simu/simu.py",
-        "pyformat": "${python.path}/autopep8.exe -i --aggressive ./server/server.py"
+        "pyformat": "autopep8.exe -i --aggressive ./server/server.py"
     },
-    "author": ""
+    "author": "JAB, MPI & JFO"
 }
